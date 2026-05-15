@@ -1,0 +1,14 @@
+[
+  {
+    "id": "1778840321436",
+    "isBanned": false,
+    "plan": "Bharat Plan",
+    "planStatus": "active",
+    "planExpiry": "forever",
+    "daysRemaining": "unlimited",
+    "name": "Rishikesh",
+    "email": "rauthrishi77@gmail.com",
+    "password": "$2b$10$4UuRbjwq4TQTNQtFI76fqOKytFdrdB4TXTFmGQFjugNjoBo9V59K.",
+    "createdAt": "2026-05-15T10:18:41.436Z"
+  }
+]

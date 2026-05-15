@@ -1,0 +1,1078 @@
+0 verbose cli /usr/local/bin/node /usr/local/bin/npm
+1 info using npm@9.9.4
+2 info using node@v19.9.0
+3 timing npm:load:whichnode Completed in 4ms
+4 timing config:load:defaults Completed in 6ms
+5 timing config:load:file:/usr/local/lib/node_modules/npm/npmrc Completed in 7ms
+6 timing config:load:builtin Completed in 17ms
+7 timing config:load:cli Completed in 76ms
+8 timing config:load:env Completed in 0ms
+9 timing config:load:project Completed in 5ms
+10 timing config:load:file:/home/container/.npmrc Completed in 2ms
+11 timing config:load:user Completed in 2ms
+12 timing config:load:file:/usr/local/etc/npmrc Completed in 1ms
+13 timing config:load:global Completed in 1ms
+14 timing config:load:setEnvs Completed in 4ms
+15 timing config:load Completed in 115ms
+16 timing npm:load:configload Completed in 116ms
+17 timing config:load:flatten Completed in 8ms
+18 timing npm:load:mkdirpcache Completed in 1ms
+19 timing npm:load:mkdirplogs Completed in 0ms
+20 verbose title npm install
+21 verbose argv "install"
+22 timing npm:load:setTitle Completed in 2ms
+23 timing npm:load:display Completed in 1ms
+24 verbose logfile logs-max:10 dir:/home/container/.npm/_logs/2026-05-07T20_14_18_378Z-
+25 verbose logfile /home/container/.npm/_logs/2026-05-07T20_14_18_378Z-debug-0.log
+26 timing npm:load:logFile Completed in 36ms
+27 timing npm:load:timers Completed in 0ms
+28 timing npm:load:configScope Completed in 0ms
+29 timing npm:load Completed in 246ms
+30 timing arborist:ctor Completed in 8ms
+31 silly logfile start cleaning logs, removing 1 files
+32 silly logfile done cleaning log files
+33 timing idealTree:init Completed in 1426ms
+34 timing idealTree:userRequests Completed in 0ms
+35 silly idealTree buildDeps
+36 timing idealTree:#root Completed in 1ms
+37 timing idealTree:buildDeps Completed in 6ms
+38 timing idealTree:fixDepFlags Completed in 1ms
+39 warn EBADENGINE Unsupported engine {
+39 warn EBADENGINE   package: 'npm@11.7.0',
+39 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+39 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+39 warn EBADENGINE }
+40 warn EBADENGINE Unsupported engine {
+40 warn EBADENGINE   package: '@isaacs/balanced-match@4.0.1',
+40 warn EBADENGINE   required: { node: '20 || >=22' },
+40 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+40 warn EBADENGINE }
+41 warn EBADENGINE Unsupported engine {
+41 warn EBADENGINE   package: '@isaacs/brace-expansion@5.0.0',
+41 warn EBADENGINE   required: { node: '20 || >=22' },
+41 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+41 warn EBADENGINE }
+42 warn EBADENGINE Unsupported engine {
+42 warn EBADENGINE   package: '@npmcli/agent@4.0.0',
+42 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+42 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+42 warn EBADENGINE }
+43 warn EBADENGINE Unsupported engine {
+43 warn EBADENGINE   package: '@npmcli/arborist@9.1.9',
+43 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+43 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+43 warn EBADENGINE }
+44 warn EBADENGINE Unsupported engine {
+44 warn EBADENGINE   package: '@npmcli/config@10.4.5',
+44 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+44 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+44 warn EBADENGINE }
+45 warn EBADENGINE Unsupported engine {
+45 warn EBADENGINE   package: '@npmcli/fs@5.0.0',
+45 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+45 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+45 warn EBADENGINE }
+46 warn EBADENGINE Unsupported engine {
+46 warn EBADENGINE   package: '@npmcli/git@7.0.1',
+46 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+46 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+46 warn EBADENGINE }
+47 warn EBADENGINE Unsupported engine {
+47 warn EBADENGINE   package: '@npmcli/installed-package-contents@4.0.0',
+47 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+47 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+47 warn EBADENGINE }
+48 warn EBADENGINE Unsupported engine {
+48 warn EBADENGINE   package: '@npmcli/map-workspaces@5.0.3',
+48 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+48 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+48 warn EBADENGINE }
+49 warn EBADENGINE Unsupported engine {
+49 warn EBADENGINE   package: '@npmcli/metavuln-calculator@9.0.3',
+49 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+49 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+49 warn EBADENGINE }
+50 warn EBADENGINE Unsupported engine {
+50 warn EBADENGINE   package: '@npmcli/name-from-folder@4.0.0',
+50 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+50 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+50 warn EBADENGINE }
+51 warn EBADENGINE Unsupported engine {
+51 warn EBADENGINE   package: '@npmcli/node-gyp@5.0.0',
+51 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+51 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+51 warn EBADENGINE }
+52 warn EBADENGINE Unsupported engine {
+52 warn EBADENGINE   package: '@npmcli/package-json@7.0.4',
+52 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+52 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+52 warn EBADENGINE }
+53 warn EBADENGINE Unsupported engine {
+53 warn EBADENGINE   package: '@npmcli/promise-spawn@9.0.1',
+53 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+53 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+53 warn EBADENGINE }
+54 warn EBADENGINE Unsupported engine {
+54 warn EBADENGINE   package: '@npmcli/query@5.0.0',
+54 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+54 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+54 warn EBADENGINE }
+55 warn EBADENGINE Unsupported engine {
+55 warn EBADENGINE   package: '@npmcli/redact@4.0.0',
+55 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+55 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+55 warn EBADENGINE }
+56 warn EBADENGINE Unsupported engine {
+56 warn EBADENGINE   package: '@npmcli/run-script@10.0.3',
+56 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+56 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+56 warn EBADENGINE }
+57 warn EBADENGINE Unsupported engine {
+57 warn EBADENGINE   package: '@sigstore/bundle@4.0.0',
+57 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+57 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+57 warn EBADENGINE }
+58 warn EBADENGINE Unsupported engine {
+58 warn EBADENGINE   package: '@sigstore/core@3.0.0',
+58 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+58 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+58 warn EBADENGINE }
+59 warn EBADENGINE Unsupported engine {
+59 warn EBADENGINE   package: '@sigstore/protobuf-specs@0.5.0',
+59 warn EBADENGINE   required: { node: '^18.17.0 || >=20.5.0' },
+59 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+59 warn EBADENGINE }
+60 warn EBADENGINE Unsupported engine {
+60 warn EBADENGINE   package: '@sigstore/sign@4.0.1',
+60 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+60 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+60 warn EBADENGINE }
+61 warn EBADENGINE Unsupported engine {
+61 warn EBADENGINE   package: 'proc-log@5.0.0',
+61 warn EBADENGINE   required: { node: '^18.17.0 || >=20.5.0' },
+61 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+61 warn EBADENGINE }
+62 warn EBADENGINE Unsupported engine {
+62 warn EBADENGINE   package: '@sigstore/tuf@4.0.0',
+62 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+62 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+62 warn EBADENGINE }
+63 warn EBADENGINE Unsupported engine {
+63 warn EBADENGINE   package: '@sigstore/verify@3.0.0',
+63 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+63 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+63 warn EBADENGINE }
+64 warn EBADENGINE Unsupported engine {
+64 warn EBADENGINE   package: '@tufjs/models@4.0.0',
+64 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+64 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+64 warn EBADENGINE }
+65 warn EBADENGINE Unsupported engine {
+65 warn EBADENGINE   package: 'abbrev@4.0.0',
+65 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+65 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+65 warn EBADENGINE }
+66 warn EBADENGINE Unsupported engine {
+66 warn EBADENGINE   package: 'bin-links@6.0.0',
+66 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+66 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+66 warn EBADENGINE }
+67 warn EBADENGINE Unsupported engine {
+67 warn EBADENGINE   package: 'cacache@20.0.3',
+67 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+67 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+67 warn EBADENGINE }
+68 warn EBADENGINE Unsupported engine {
+68 warn EBADENGINE   package: 'cidr-regex@5.0.1',
+68 warn EBADENGINE   required: { node: '>=20' },
+68 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+68 warn EBADENGINE }
+69 warn EBADENGINE Unsupported engine {
+69 warn EBADENGINE   package: 'cmd-shim@8.0.0',
+69 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+69 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+69 warn EBADENGINE }
+70 warn EBADENGINE Unsupported engine {
+70 warn EBADENGINE   package: 'glob@13.0.0',
+70 warn EBADENGINE   required: { node: '20 || >=22' },
+70 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+70 warn EBADENGINE }
+71 warn EBADENGINE Unsupported engine {
+71 warn EBADENGINE   package: 'hosted-git-info@9.0.2',
+71 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+71 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+71 warn EBADENGINE }
+72 warn EBADENGINE Unsupported engine {
+72 warn EBADENGINE   package: 'ignore-walk@8.0.0',
+72 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+72 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+72 warn EBADENGINE }
+73 warn EBADENGINE Unsupported engine {
+73 warn EBADENGINE   package: 'ini@6.0.0',
+73 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+73 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+73 warn EBADENGINE }
+74 warn EBADENGINE Unsupported engine {
+74 warn EBADENGINE   package: 'init-package-json@8.2.4',
+74 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+74 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+74 warn EBADENGINE }
+75 warn EBADENGINE Unsupported engine {
+75 warn EBADENGINE   package: 'is-cidr@6.0.1',
+75 warn EBADENGINE   required: { node: '>=20' },
+75 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+75 warn EBADENGINE }
+76 warn EBADENGINE Unsupported engine {
+76 warn EBADENGINE   package: 'json-parse-even-better-errors@5.0.0',
+76 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+76 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+76 warn EBADENGINE }
+77 warn EBADENGINE Unsupported engine {
+77 warn EBADENGINE   package: 'libnpmaccess@10.0.3',
+77 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+77 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+77 warn EBADENGINE }
+78 warn EBADENGINE Unsupported engine {
+78 warn EBADENGINE   package: 'libnpmdiff@8.0.12',
+78 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+78 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+78 warn EBADENGINE }
+79 warn EBADENGINE Unsupported engine {
+79 warn EBADENGINE   package: 'libnpmexec@10.1.11',
+79 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+79 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+79 warn EBADENGINE }
+80 warn EBADENGINE Unsupported engine {
+80 warn EBADENGINE   package: 'libnpmfund@7.0.12',
+80 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+80 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+80 warn EBADENGINE }
+81 warn EBADENGINE Unsupported engine {
+81 warn EBADENGINE   package: 'libnpmorg@8.0.1',
+81 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+81 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+81 warn EBADENGINE }
+82 warn EBADENGINE Unsupported engine {
+82 warn EBADENGINE   package: 'libnpmpack@9.0.12',
+82 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+82 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+82 warn EBADENGINE }
+83 warn EBADENGINE Unsupported engine {
+83 warn EBADENGINE   package: 'libnpmpublish@11.1.3',
+83 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+83 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+83 warn EBADENGINE }
+84 warn EBADENGINE Unsupported engine {
+84 warn EBADENGINE   package: 'libnpmsearch@9.0.1',
+84 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+84 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+84 warn EBADENGINE }
+85 warn EBADENGINE Unsupported engine {
+85 warn EBADENGINE   package: 'libnpmteam@8.0.2',
+85 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+85 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+85 warn EBADENGINE }
+86 warn EBADENGINE Unsupported engine {
+86 warn EBADENGINE   package: 'libnpmversion@8.0.3',
+86 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+86 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+86 warn EBADENGINE }
+87 warn EBADENGINE Unsupported engine {
+87 warn EBADENGINE   package: 'lru-cache@11.2.2',
+87 warn EBADENGINE   required: { node: '20 || >=22' },
+87 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+87 warn EBADENGINE }
+88 warn EBADENGINE Unsupported engine {
+88 warn EBADENGINE   package: 'make-fetch-happen@15.0.3',
+88 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+88 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+88 warn EBADENGINE }
+89 warn EBADENGINE Unsupported engine {
+89 warn EBADENGINE   package: 'minimatch@10.1.1',
+89 warn EBADENGINE   required: { node: '20 || >=22' },
+89 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+89 warn EBADENGINE }
+90 warn EBADENGINE Unsupported engine {
+90 warn EBADENGINE   package: 'minipass-fetch@5.0.0',
+90 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+90 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+90 warn EBADENGINE }
+91 warn EBADENGINE Unsupported engine {
+91 warn EBADENGINE   package: 'mute-stream@3.0.0',
+91 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+91 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+91 warn EBADENGINE }
+92 warn EBADENGINE Unsupported engine {
+92 warn EBADENGINE   package: 'node-gyp@12.1.0',
+92 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+92 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+92 warn EBADENGINE }
+93 warn EBADENGINE Unsupported engine {
+93 warn EBADENGINE   package: 'nopt@9.0.0',
+93 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+93 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+93 warn EBADENGINE }
+94 warn EBADENGINE Unsupported engine {
+94 warn EBADENGINE   package: 'npm-audit-report@7.0.0',
+94 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+94 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+94 warn EBADENGINE }
+95 warn EBADENGINE Unsupported engine {
+95 warn EBADENGINE   package: 'npm-bundled@5.0.0',
+95 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+95 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+95 warn EBADENGINE }
+96 warn EBADENGINE Unsupported engine {
+96 warn EBADENGINE   package: 'npm-install-checks@8.0.0',
+96 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+96 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+96 warn EBADENGINE }
+97 warn EBADENGINE Unsupported engine {
+97 warn EBADENGINE   package: 'npm-normalize-package-bin@5.0.0',
+97 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+97 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+97 warn EBADENGINE }
+98 warn EBADENGINE Unsupported engine {
+98 warn EBADENGINE   package: 'npm-package-arg@13.0.2',
+98 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+98 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+98 warn EBADENGINE }
+99 warn EBADENGINE Unsupported engine {
+99 warn EBADENGINE   package: 'npm-packlist@10.0.3',
+99 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+99 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+99 warn EBADENGINE }
+100 warn EBADENGINE Unsupported engine {
+100 warn EBADENGINE   package: 'npm-pick-manifest@11.0.3',
+100 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+100 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+100 warn EBADENGINE }
+101 warn EBADENGINE Unsupported engine {
+101 warn EBADENGINE   package: 'npm-profile@12.0.1',
+101 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+101 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+101 warn EBADENGINE }
+102 warn EBADENGINE Unsupported engine {
+102 warn EBADENGINE   package: 'npm-registry-fetch@19.1.1',
+102 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+102 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+102 warn EBADENGINE }
+103 warn EBADENGINE Unsupported engine {
+103 warn EBADENGINE   package: 'npm-user-validate@4.0.0',
+103 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+103 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+103 warn EBADENGINE }
+104 warn EBADENGINE Unsupported engine {
+104 warn EBADENGINE   package: 'pacote@21.0.4',
+104 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+104 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+104 warn EBADENGINE }
+105 warn EBADENGINE Unsupported engine {
+105 warn EBADENGINE   package: 'parse-conflict-json@5.0.1',
+105 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+105 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+105 warn EBADENGINE }
+106 warn EBADENGINE Unsupported engine {
+106 warn EBADENGINE   package: 'path-scurry@2.0.0',
+106 warn EBADENGINE   required: { node: '20 || >=22' },
+106 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+106 warn EBADENGINE }
+107 warn EBADENGINE Unsupported engine {
+107 warn EBADENGINE   package: 'proc-log@6.1.0',
+107 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+107 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+107 warn EBADENGINE }
+108 warn EBADENGINE Unsupported engine {
+108 warn EBADENGINE   package: 'proggy@4.0.0',
+108 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+108 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+108 warn EBADENGINE }
+109 warn EBADENGINE Unsupported engine {
+109 warn EBADENGINE   package: 'promzard@3.0.1',
+109 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+109 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+109 warn EBADENGINE }
+110 warn EBADENGINE Unsupported engine {
+110 warn EBADENGINE   package: 'read@5.0.1',
+110 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+110 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+110 warn EBADENGINE }
+111 warn EBADENGINE Unsupported engine {
+111 warn EBADENGINE   package: 'read-cmd-shim@6.0.0',
+111 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+111 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+111 warn EBADENGINE }
+112 warn EBADENGINE Unsupported engine {
+112 warn EBADENGINE   package: 'sigstore@4.0.0',
+112 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+112 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+112 warn EBADENGINE }
+113 warn EBADENGINE Unsupported engine {
+113 warn EBADENGINE   package: 'ssri@13.0.0',
+113 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+113 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+113 warn EBADENGINE }
+114 warn EBADENGINE Unsupported engine {
+114 warn EBADENGINE   package: 'tuf-js@4.0.0',
+114 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+114 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+114 warn EBADENGINE }
+115 warn EBADENGINE Unsupported engine {
+115 warn EBADENGINE   package: 'unique-filename@5.0.0',
+115 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+115 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+115 warn EBADENGINE }
+116 warn EBADENGINE Unsupported engine {
+116 warn EBADENGINE   package: 'unique-slug@6.0.0',
+116 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+116 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+116 warn EBADENGINE }
+117 warn EBADENGINE Unsupported engine {
+117 warn EBADENGINE   package: 'validate-npm-package-name@7.0.0',
+117 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+117 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+117 warn EBADENGINE }
+118 warn EBADENGINE Unsupported engine {
+118 warn EBADENGINE   package: 'walk-up-path@4.0.0',
+118 warn EBADENGINE   required: { node: '20 || >=22' },
+118 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+118 warn EBADENGINE }
+119 warn EBADENGINE Unsupported engine {
+119 warn EBADENGINE   package: 'which@6.0.0',
+119 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+119 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+119 warn EBADENGINE }
+120 warn EBADENGINE Unsupported engine {
+120 warn EBADENGINE   package: 'write-file-atomic@7.0.0',
+120 warn EBADENGINE   required: { node: '^20.17.0 || >=22.9.0' },
+120 warn EBADENGINE   current: { node: 'v19.9.0', npm: '9.9.4' }
+120 warn EBADENGINE }
+121 timing idealTree Completed in 1926ms
+122 timing arborist:ctor Completed in 1ms
+123 timing reify:loadTrees Completed in 2511ms
+124 timing reify:diffTrees Completed in 541ms
+125 silly reify moves {}
+126 timing reify:retireShallow Completed in 2ms
+127 timing reify:createSparse Completed in 0ms
+128 timing reify:loadBundles Completed in 0ms
+129 silly audit bulk request {
+129 silly audit   accepts: [ '1.3.8' ],
+129 silly audit   'array-flatten': [ '1.1.1' ],
+129 silly audit   'body-parser': [ '1.20.3' ],
+129 silly audit   bytes: [ '3.1.2' ],
+129 silly audit   'call-bind-apply-helpers': [ '1.0.2' ],
+129 silly audit   'call-bound': [ '1.0.4' ],
+129 silly audit   'content-disposition': [ '0.5.4' ],
+129 silly audit   'content-type': [ '1.0.5' ],
+129 silly audit   cookie: [ '0.7.1' ],
+129 silly audit   'cookie-signature': [ '1.0.6' ],
+129 silly audit   debug: [ '2.6.9', '4.4.3' ],
+129 silly audit   depd: [ '2.0.0' ],
+129 silly audit   destroy: [ '1.2.0' ],
+129 silly audit   'dunder-proto': [ '1.0.1' ],
+129 silly audit   'ee-first': [ '1.1.1' ],
+129 silly audit   encodeurl: [ '2.0.0', '1.0.2' ],
+129 silly audit   'es-define-property': [ '1.0.1' ],
+129 silly audit   'es-errors': [ '1.3.0' ],
+129 silly audit   'es-object-atoms': [ '1.1.1' ],
+129 silly audit   'escape-html': [ '1.0.3' ],
+129 silly audit   etag: [ '1.8.1' ],
+129 silly audit   express: [ '4.21.2' ],
+129 silly audit   finalhandler: [ '1.3.1' ],
+129 silly audit   forwarded: [ '0.2.0' ],
+129 silly audit   fresh: [ '0.5.2' ],
+129 silly audit   'function-bind': [ '1.1.2' ],
+129 silly audit   'get-intrinsic': [ '1.3.0' ],
+129 silly audit   'get-proto': [ '1.0.1' ],
+129 silly audit   gopd: [ '1.2.0' ],
+129 silly audit   'has-symbols': [ '1.1.0' ],
+129 silly audit   hasown: [ '2.0.2' ],
+129 silly audit   'http-errors': [ '2.0.0' ],
+129 silly audit   'iconv-lite': [ '0.4.24', '0.6.3' ],
+129 silly audit   inherits: [ '2.0.4' ],
+129 silly audit   install: [ '0.13.0' ],
+129 silly audit   'ipaddr.js': [ '1.9.1' ],
+129 silly audit   'math-intrinsics': [ '1.1.0' ],
+129 silly audit   'media-typer': [ '0.3.0' ],
+129 silly audit   'merge-descriptors': [ '1.0.3' ],
+129 silly audit   methods: [ '1.1.2' ],
+129 silly audit   mime: [ '1.6.0' ],
+129 silly audit   'mime-db': [ '1.52.0' ],
+129 silly audit   'mime-types': [ '2.1.35' ],
+129 silly audit   ms: [ '2.0.0', '2.1.3' ],
+129 silly audit   negotiator: [ '0.6.3', '1.0.0' ],
+129 silly audit   npm: [ '11.7.0' ],
+129 silly audit   'proc-log': [ '5.0.0', '6.1.0' ],
+129 silly audit   minimatch: [ '9.0.5', '10.1.1' ],
+129 silly audit   minipass: [ '7.1.2', '3.3.6' ],
+129 silly audit   'safer-buffer': [ '2.1.2' ],
+129 silly audit   'spdx-expression-parse': [ '3.0.1', '4.0.0' ],
+129 silly audit   yallist: [ '5.0.0', '4.0.0' ],
+129 silly audit   'object-inspect': [ '1.13.4' ],
+129 silly audit   'on-finished': [ '2.4.1' ],
+129 silly audit   parseurl: [ '1.3.3' ],
+129 silly audit   'path-to-regexp': [ '0.1.12' ],
+129 silly audit   'proxy-addr': [ '2.0.7' ],
+129 silly audit   qs: [ '6.13.0' ],
+129 silly audit   'range-parser': [ '1.2.1' ],
+129 silly audit   'raw-body': [ '2.5.2' ],
+129 silly audit   'safe-buffer': [ '5.2.1' ],
+129 silly audit   send: [ '0.19.0' ],
+129 silly audit   'serve-static': [ '1.16.2' ],
+129 silly audit   setprototypeof: [ '1.2.0' ],
+129 silly audit   'side-channel': [ '1.1.0' ],
+129 silly audit   'side-channel-list': [ '1.0.0' ],
+129 silly audit   'side-channel-map': [ '1.0.1' ],
+129 silly audit   'side-channel-weakmap': [ '1.0.2' ],
+129 silly audit   statuses: [ '2.0.1' ],
+129 silly audit   toidentifier: [ '1.0.1' ],
+129 silly audit   'type-is': [ '1.6.18' ],
+129 silly audit   unpipe: [ '1.0.0' ],
+129 silly audit   'utils-merge': [ '1.0.1' ],
+129 silly audit   vary: [ '1.1.2' ],
+129 silly audit   '@isaacs/balanced-match': [ '4.0.1' ],
+129 silly audit   '@isaacs/brace-expansion': [ '5.0.0' ],
+129 silly audit   '@isaacs/fs-minipass': [ '4.0.1' ],
+129 silly audit   '@isaacs/string-locale-compare': [ '1.1.0' ],
+129 silly audit   '@npmcli/agent': [ '4.0.0' ],
+129 silly audit   '@npmcli/arborist': [ '9.1.9' ],
+129 silly audit   '@npmcli/config': [ '10.4.5' ],
+129 silly audit   '@npmcli/fs': [ '5.0.0' ],
+129 silly audit   '@npmcli/git': [ '7.0.1' ],
+129 silly audit   '@npmcli/installed-package-contents': [ '4.0.0' ],
+129 silly audit   '@npmcli/map-workspaces': [ '5.0.3' ],
+129 silly audit   '@npmcli/metavuln-calculator': [ '9.0.3' ],
+129 silly audit   '@npmcli/name-from-folder': [ '4.0.0' ],
+129 silly audit   '@npmcli/node-gyp': [ '5.0.0' ],
+129 silly audit   '@npmcli/package-json': [ '7.0.4' ],
+129 silly audit   '@npmcli/promise-spawn': [ '9.0.1' ],
+129 silly audit   '@npmcli/query': [ '5.0.0' ],
+129 silly audit   '@npmcli/redact': [ '4.0.0' ],
+129 silly audit   '@npmcli/run-script': [ '10.0.3' ],
+129 silly audit   '@sigstore/bundle': [ '4.0.0' ],
+129 silly audit   '@sigstore/core': [ '3.0.0' ],
+129 silly audit   '@sigstore/protobuf-specs': [ '0.5.0' ],
+129 silly audit   '@sigstore/sign': [ '4.0.1' ],
+129 silly audit   '@sigstore/tuf': [ '4.0.0' ],
+129 silly audit   '@sigstore/verify': [ '3.0.0' ],
+129 silly audit   '@tufjs/canonical-json': [ '2.0.0' ],
+129 silly audit   '@tufjs/models': [ '4.0.0' ],
+129 silly audit   abbrev: [ '4.0.0' ],
+129 silly audit   'agent-base': [ '7.1.4' ],
+129 silly audit   'ansi-regex': [ '5.0.1' ],
+129 silly audit   aproba: [ '2.1.0' ],
+129 silly audit   archy: [ '1.0.0' ],
+129 silly audit   'balanced-match': [ '1.0.2' ],
+129 silly audit   'bin-links': [ '6.0.0' ],
+129 silly audit   'binary-extensions': [ '3.1.0' ],
+129 silly audit   'brace-expansion': [ '2.0.2' ],
+129 silly audit   cacache: [ '20.0.3' ],
+129 silly audit   chalk: [ '5.6.2' ],
+129 silly audit   chownr: [ '3.0.0' ],
+129 silly audit   'ci-info': [ '4.3.1' ],
+129 silly audit   'cidr-regex': [ '5.0.1' ],
+129 silly audit   'cli-columns': [ '4.0.0' ],
+129 silly audit   'cmd-shim': [ '8.0.0' ],
+129 silly audit   'common-ancestor-path': [ '1.0.1' ],
+129 silly audit   cssesc: [ '3.0.0' ],
+129 silly audit   diff: [ '8.0.2' ],
+129 silly audit   'emoji-regex': [ '8.0.0' ],
+129 silly audit   encoding: [ '0.1.13' ],
+129 silly audit   'env-paths': [ '2.2.1' ],
+129 silly audit   'err-code': [ '2.0.3' ],
+129 silly audit   'exponential-backoff': [ '3.1.3' ],
+129 silly audit   'fastest-levenshtein': [ '1.0.16' ],
+129 silly audit   'fs-minipass': [ '3.0.3' ],
+129 silly audit   glob: [ '13.0.0' ],
+129 silly audit   'graceful-fs': [ '4.2.11' ],
+129 silly audit   'hosted-git-info': [ '9.0.2' ],
+129 silly audit   'http-cache-semantics': [ '4.2.0' ],
+129 silly audit   'http-proxy-agent': [ '7.0.2' ],
+129 silly audit   'https-proxy-agent': [ '7.0.6' ],
+129 silly audit   'ignore-walk': [ '8.0.0' ],
+129 silly audit   imurmurhash: [ '0.1.4' ],
+129 silly audit   ini: [ '6.0.0' ],
+129 silly audit   'init-package-json': [ '8.2.4' ],
+129 silly audit   'ip-address': [ '10.0.1' ],
+129 silly audit   'ip-regex': [ '5.0.0' ],
+129 silly audit   'is-cidr': [ '6.0.1' ],
+129 silly audit   'is-fullwidth-code-point': [ '3.0.0' ],
+129 silly audit   isexe: [ '3.1.1' ],
+129 silly audit   'json-parse-even-better-errors': [ '5.0.0' ],
+129 silly audit   'json-stringify-nice': [ '1.1.4' ],
+129 silly audit   jsonparse: [ '1.3.1' ],
+129 silly audit   'just-diff': [ '6.0.2' ],
+129 silly audit   'just-diff-apply': [ '5.5.0' ],
+129 silly audit   libnpmaccess: [ '10.0.3' ],
+129 silly audit   libnpmdiff: [ '8.0.12' ],
+129 silly audit   libnpmexec: [ '10.1.11' ],
+129 silly audit   libnpmfund: [ '7.0.12' ],
+129 silly audit   libnpmorg: [ '8.0.1' ],
+129 silly audit   libnpmpack: [ '9.0.12' ],
+129 silly audit   libnpmpublish: [ '11.1.3' ],
+129 silly audit   libnpmsearch: [ '9.0.1' ],
+129 silly audit   libnpmteam: [ '8.0.2' ],
+129 silly audit   libnpmversion: [ '8.0.3' ],
+129 silly audit   'lru-cache': [ '11.2.2' ],
+129 silly audit   'make-fetch-happen': [ '15.0.3' ],
+129 silly audit   'minipass-collect': [ '2.0.1' ],
+129 silly audit   'minipass-fetch': [ '5.0.0' ],
+129 silly audit   'minipass-flush': [ '1.0.5' ],
+129 silly audit   'minipass-pipeline': [ '1.2.4' ],
+129 silly audit   'minipass-sized': [ '1.0.3' ],
+129 silly audit   minizlib: [ '3.1.0' ],
+129 silly audit   'mute-stream': [ '3.0.0' ],
+129 silly audit   'node-gyp': [ '12.1.0' ],
+129 silly audit   nopt: [ '9.0.0' ],
+129 silly audit   'npm-audit-report': [ '7.0.0' ],
+129 silly audit   'npm-bundled': [ '5.0.0' ],
+129 silly audit   'npm-install-checks': [ '8.0.0' ],
+129 silly audit   'npm-normalize-package-bin': [ '5.0.0' ],
+129 silly audit   'npm-package-arg': [ '13.0.2' ],
+129 silly audit   'npm-packlist': [ '10.0.3' ],
+129 silly audit   'npm-pick-manifest': [ '11.0.3' ],
+129 silly audit   'npm-profile': [ '12.0.1' ],
+129 silly audit   'npm-registry-fetch': [ '19.1.1' ],
+129 silly audit   'npm-user-validate': [ '4.0.0' ],
+129 silly audit   'p-map': [ '7.0.4' ],
+129 silly audit   pacote: [ '21.0.4' ],
+129 silly audit   'parse-conflict-json': [ '5.0.1' ],
+129 silly audit   'path-scurry': [ '2.0.0' ],
+129 silly audit   'postcss-selector-parser': [ '7.1.0' ],
+129 silly audit   proggy: [ '4.0.0' ],
+129 silly audit   'promise-all-reject-late': [ '1.0.1' ],
+129 silly audit   'promise-call-limit': [ '3.0.2' ],
+129 silly audit   'promise-retry': [ '2.0.1' ],
+129 silly audit   promzard: [ '3.0.1' ],
+129 silly audit   'qrcode-terminal': [ '0.12.0' ],
+129 silly audit   read: [ '5.0.1' ],
+129 silly audit   'read-cmd-shim': [ '6.0.0' ],
+129 silly audit   retry: [ '0.12.0' ],
+129 silly audit   semver: [ '7.7.3' ],
+129 silly audit   'signal-exit': [ '4.1.0' ],
+129 silly audit   sigstore: [ '4.0.0' ],
+129 silly audit   'smart-buffer': [ '4.2.0' ],
+129 silly audit   socks: [ '2.8.7' ],
+129 silly audit   'socks-proxy-agent': [ '8.0.5' ],
+129 silly audit   'spdx-correct': [ '3.2.0' ],
+129 silly audit   'spdx-exceptions': [ '2.5.0' ],
+129 silly audit   'spdx-license-ids': [ '3.0.22' ],
+129 silly audit   ssri: [ '13.0.0' ],
+129 silly audit   'string-width': [ '4.2.3' ],
+129 silly audit   'strip-ansi': [ '6.0.1' ],
+129 silly audit   'supports-color': [ '10.2.2' ],
+129 silly audit   tar: [ '7.5.2' ],
+129 silly audit   'text-table': [ '0.2.0' ],
+129 silly audit   'tiny-relative-date': [ '2.0.2' ],
+129 silly audit   tinyglobby: [ '0.2.15' ],
+129 silly audit   fdir: [ '6.5.0' ],
+129 silly audit   picomatch: [ '4.0.3' ],
+129 silly audit   treeverse: [ '3.0.0' ],
+129 silly audit   'tuf-js': [ '4.0.0' ],
+129 silly audit   'unique-filename': [ '5.0.0' ],
+129 silly audit   'unique-slug': [ '6.0.0' ],
+129 silly audit   'util-deprecate': [ '1.0.2' ],
+129 silly audit   'validate-npm-package-license': [ '3.0.4' ],
+129 silly audit   'validate-npm-package-name': [ '7.0.0' ],
+129 silly audit   'walk-up-path': [ '4.0.0' ],
+129 silly audit   which: [ '6.0.0' ],
+129 silly audit   'write-file-atomic': [ '7.0.0' ]
+129 silly audit }
+130 timing reify:unpack Completed in 27ms
+131 timing reify:unretire Completed in 0ms
+132 timing build:queue Completed in 0ms
+133 timing build:deps Completed in 2ms
+134 timing build Completed in 2ms
+135 timing reify:build Completed in 3ms
+136 timing reify:trash Completed in 0ms
+137 timing reify:save Completed in 668ms
+138 http fetch POST 200 https://registry.npmjs.org/-/npm/v1/security/advisories/bulk 1558ms
+139 timing auditReport:getReport Completed in 1629ms
+140 silly audit report {
+140 silly audit report   minimatch: [
+140 silly audit report     {
+140 silly audit report       id: 1113465,
+140 silly audit report       url: 'https://github.com/advisories/GHSA-3ppc-4f35-3m26',
+140 silly audit report       title: 'minimatch has a ReDoS via repeated wildcards with non-matching literal in pattern',
+140 silly audit report       severity: 'high',
+140 silly audit report       vulnerable_versions: '>=9.0.0 <9.0.6',
+140 silly audit report       cwe: [Array],
+140 silly audit report       cvss: [Object]
+140 silly audit report     },
+140 silly audit report     {
+140 silly audit report       id: 1113466,
+140 silly audit report       url: 'https://github.com/advisories/GHSA-3ppc-4f35-3m26',
+140 silly audit report       title: 'minimatch has a ReDoS via repeated wildcards with non-matching literal in pattern',
+140 silly audit report       severity: 'high',
+140 silly audit report       vulnerable_versions: '>=10.0.0 <10.2.1',
+140 silly audit report       cwe: [Array],
+140 silly audit report       cvss: [Object]
+140 silly audit report     },
+140 silly audit report     {
+140 silly audit report       id: 1113544,
+140 silly audit report       url: 'https://github.com/advisories/GHSA-7r86-cg39-jmmj',
+140 silly audit report       title: 'minimatch has ReDoS: matchOne() combinatorial backtracking via multiple non-adjacent GLOBSTAR segments',
+140 silly audit report       severity: 'high',
+140 silly audit report       vulnerable_versions: '>=9.0.0 <9.0.7',
+140 silly audit report       cwe: [Array],
+140 silly audit report       cvss: [Object]
+140 silly audit report     },
+140 silly audit report     {
+140 silly audit report       id: 1113545,
+140 silly audit report       url: 'https://github.com/advisories/GHSA-7r86-cg39-jmmj',
+140 silly audit report       title: 'minimatch has ReDoS: matchOne() combinatorial backtracking via multiple non-adjacent GLOBSTAR segments',
+140 silly audit report       severity: 'high',
+140 silly audit report       vulnerable_versions: '>=10.0.0 <10.2.3',
+140 silly audit report       cwe: [Array],
+140 silly audit report       cvss: [Object]
+140 silly audit report     },
+140 silly audit report     {
+140 silly audit report       id: 1113552,
+140 silly audit report       url: 'https://github.com/advisories/GHSA-23c5-xmqv-rm74',
+140 silly audit report       title: 'minimatch ReDoS: nested *() extglobs generate catastrophically backtracking regular expressions',
+140 silly audit report       severity: 'high',
+140 silly audit report       vulnerable_versions: '>=9.0.0 <9.0.7',
+140 silly audit report       cwe: [Array],
+140 silly audit report       cvss: [Object]
+140 silly audit report     },
+140 silly audit report     {
+140 silly audit report       id: 1113553,
+140 silly audit report       url: 'https://github.com/advisories/GHSA-23c5-xmqv-rm74',
+140 silly audit report       title: 'minimatch ReDoS: nested *() extglobs generate catastrophically backtracking regular expressions',
+140 silly audit report       severity: 'high',
+140 silly audit report       vulnerable_versions: '>=10.0.0 <10.2.3',
+140 silly audit report       cwe: [Array],
+140 silly audit report       cvss: [Object]
+140 silly audit report     }
+140 silly audit report   ],
+140 silly audit report   'path-to-regexp': [
+140 silly audit report     {
+140 silly audit report       id: 1115527,
+140 silly audit report       url: 'https://github.com/advisories/GHSA-37ch-88jc-xwx2',
+140 silly audit report       title: 'path-to-regexp vulnerable to Regular Expression Denial of Service via multiple route parameters',
+140 silly audit report       severity: 'high',
+140 silly audit report       vulnerable_versions: '<0.1.13',
+140 silly audit report       cwe: [Array],
+140 silly audit report       cvss: [Object]
+140 silly audit report     }
+140 silly audit report   ],
+140 silly audit report   qs: [
+140 silly audit report     {
+140 silly audit report       id: 1113161,
+140 silly audit report       url: 'https://github.com/advisories/GHSA-w7fw-mjwx-w883',
+140 silly audit report       title: "qs's arrayLimit bypass in comma parsing allows denial of service",
+140 silly audit report       severity: 'low',
+140 silly audit report       vulnerable_versions: '>=6.7.0 <=6.14.1',
+140 silly audit report       cwe: [Array],
+140 silly audit report       cvss: [Object]
+140 silly audit report     },
+140 silly audit report     {
+140 silly audit report       id: 1113719,
+140 silly audit report       url: 'https://github.com/advisories/GHSA-6rw7-vpxm-498p',
+140 silly audit report       title: "qs's arrayLimit bypass in its bracket notation allows DoS via memory exhaustion",
+140 silly audit report       severity: 'moderate',
+140 silly audit report       vulnerable_versions: '<6.14.1',
+140 silly audit report       cwe: [Array],
+140 silly audit report       cvss: [Object]
+140 silly audit report     }
+140 silly audit report   ],
+140 silly audit report   '@isaacs/brace-expansion': [
+140 silly audit report     {
+140 silly audit report       id: 1112954,
+140 silly audit report       url: 'https://github.com/advisories/GHSA-7h2j-956f-4vf2',
+140 silly audit report       title: '@isaacs/brace-expansion has Uncontrolled Resource Consumption',
+140 silly audit report       severity: 'high',
+140 silly audit report       vulnerable_versions: '<=5.0.0',
+140 silly audit report       cwe: [Array],
+140 silly audit report       cvss: [Object]
+140 silly audit report     }
+140 silly audit report   ],
+140 silly audit report   'brace-expansion': [
+140 silly audit report     {
+140 silly audit report       id: 1115541,
+140 silly audit report       url: 'https://github.com/advisories/GHSA-f886-m6hf-6m8v',
+140 silly audit report       title: 'brace-expansion: Zero-step sequence causes process hang and memory exhaustion',
+140 silly audit report       severity: 'moderate',
+140 silly audit report       vulnerable_versions: '>=2.0.0 <2.0.3',
+140 silly audit report       cwe: [Array],
+140 silly audit report       cvss: [Object]
+140 silly audit report     }
+140 silly audit report   ],
+140 silly audit report   diff: [
+140 silly audit report     {
+140 silly audit report       id: 1112706,
+140 silly audit report       url: 'https://github.com/advisories/GHSA-73rr-hh4g-fpgx',
+140 silly audit report       title: 'jsdiff has a Denial of Service vulnerability in parsePatch and applyPatch',
+140 silly audit report       severity: 'low',
+140 silly audit report       vulnerable_versions: '>=6.0.0 <8.0.3',
+140 silly audit report       cwe: [Array],
+140 silly audit report       cvss: [Object]
+140 silly audit report     }
+140 silly audit report   ],
+140 silly audit report   'ip-address': [
+140 silly audit report     {
+140 silly audit report       id: 1117683,
+140 silly audit report       url: 'https://github.com/advisories/GHSA-v2v4-37r5-5v8g',
+140 silly audit report       title: 'ip-address has XSS in Address6 HTML-emitting methods',
+140 silly audit report       severity: 'moderate',
+140 silly audit report       vulnerable_versions: '<=10.1.0',
+140 silly audit report       cwe: [Array],
+140 silly audit report       cvss: [Object]
+140 silly audit report     }
+140 silly audit report   ],
+140 silly audit report   tar: [
+140 silly audit report     {
+140 silly audit report       id: 1112659,
+140 silly audit report       url: 'https://github.com/advisories/GHSA-34x7-hfp2-rc4v',
+140 silly audit report       title: 'node-tar Vulnerable to Arbitrary File Creation/Overwrite via Hardlink Path Traversal',
+140 silly audit report       severity: 'high',
+140 silly audit report       vulnerable_versions: '<7.5.7',
+140 silly audit report       cwe: [Array],
+140 silly audit report       cvss: [Object]
+140 silly audit report     },
+140 silly audit report     {
+140 silly audit report       id: 1113300,
+140 silly audit report       url: 'https://github.com/advisories/GHSA-8qq5-rm4j-mr97',
+140 silly audit report       title: 'node-tar is Vulnerable to Arbitrary File Overwrite and Symlink Poisoning via Insufficient Path Sanitization',
+140 silly audit report       severity: 'high',
+140 silly audit report       vulnerable_versions: '<=7.5.2',
+140 silly audit report       cwe: [Array],
+140 silly audit report       cvss: [Object]
+140 silly audit report     },
+140 silly audit report     {
+140 silly audit report       id: 1113375,
+140 silly audit report       url: 'https://github.com/advisories/GHSA-83g3-92jg-28cx',
+140 silly audit report       title: 'Arbitrary File Read/Write via Hardlink Target Escape Through Symlink Chain in node-tar Extraction',
+140 silly audit report       severity: 'high',
+140 silly audit report       vulnerable_versions: '<7.5.8',
+140 silly audit report       cwe: [Array],
+140 silly audit report       cvss: [Object]
+140 silly audit report     },
+140 silly audit report     {
+140 silly audit report       id: 1114200,
+140 silly audit report       url: 'https://github.com/advisories/GHSA-qffp-2rhf-9h96',
+140 silly audit report       title: 'tar has Hardlink Path Traversal via Drive-Relative Linkpath',
+140 silly audit report       severity: 'high',
+140 silly audit report       vulnerable_versions: '<=7.5.9',
+140 silly audit report       cwe: [Array],
+140 silly audit report       cvss: [Object]
+140 silly audit report     },
+140 silly audit report     {
+140 silly audit report       id: 1114302,
+140 silly audit report       url: 'https://github.com/advisories/GHSA-9ppj-qmqm-q256',
+140 silly audit report       title: 'node-tar Symlink Path Traversal via Drive-Relative Linkpath',
+140 silly audit report       severity: 'high',
+140 silly audit report       vulnerable_versions: '<=7.5.10',
+140 silly audit report       cwe: [Array],
+140 silly audit report       cvss: [Object]
+140 silly audit report     },
+140 silly audit report     {
+140 silly audit report       id: 1114680,
+140 silly audit report       url: 'https://github.com/advisories/GHSA-r6q2-hw4h-h46w',
+140 silly audit report       title: 'Race Condition in node-tar Path Reservations via Unicode Ligature Collisions on macOS APFS',
+140 silly audit report       severity: 'high',
+140 silly audit report       vulnerable_versions: '<=7.5.3',
+140 silly audit report       cwe: [Array],
+140 silly audit report       cvss: [Object]
+140 silly audit report     }
+140 silly audit report   ],
+140 silly audit report   picomatch: [
+140 silly audit report     {
+140 silly audit report       id: 1115551,
+140 silly audit report       url: 'https://github.com/advisories/GHSA-3v7f-55p6-f55p',
+140 silly audit report       title: 'Picomatch: Method Injection in POSIX Character Classes causes incorrect Glob Matching',
+140 silly audit report       severity: 'moderate',
+140 silly audit report       vulnerable_versions: '>=4.0.0 <4.0.4',
+140 silly audit report       cwe: [Array],
+140 silly audit report       cvss: [Object]
+140 silly audit report     },
+140 silly audit report     {
+140 silly audit report       id: 1115554,
+140 silly audit report       url: 'https://github.com/advisories/GHSA-c2c7-rcm5-vvqj',
+140 silly audit report       title: 'Picomatch has a ReDoS vulnerability via extglob quantifiers',
+140 silly audit report       severity: 'high',
+140 silly audit report       vulnerable_versions: '>=4.0.0 <4.0.4',
+140 silly audit report       cwe: [Array],
+140 silly audit report       cvss: [Object]
+140 silly audit report     }
+140 silly audit report   ]
+140 silly audit report }
+141 timing metavuln:cache:get:security-advisory:minimatch:B00WbbnnDNaFGA7l9BgrTioYpRMzU4+U8SUF8cn65LwArJAK0O380QwyP/UyxPr7i9XUjX9/AADC41/edu9OrA== Completed in 278ms
+142 timing metavuln:cache:get:security-advisory:minimatch:tJ9Z2VGWqiQfLaVKxc9K/6Rz1g70Mpl3An4UK+K1lyHdz27vYPzhMIkC4jRGAN2wpssY+8l13Ql259B6zkaX/Q== Completed in 265ms
+143 timing metavuln:cache:get:security-advisory:minimatch:IBqefxF0lKwSFXzwGHp5L8khqSaPYY99x0GHtXNH4YxtdIexeL4FFPzrnnBvkhgmGDEWHo3XAgpPYGyM1jidQQ== Completed in 265ms
+144 timing metavuln:cache:get:security-advisory:minimatch:YSudgUHg9DTzGapOj1yn3KjQDc6SlQw4XrLRl1ND+7KB4Yly2gDN5hqn+bNmJshGC2E+TdnCHzUD/PowxjSuDA== Completed in 266ms
+145 timing metavuln:cache:get:security-advisory:minimatch:gmGvnILTQw5rpooI0RiOJmV+mxGIY4Os9W3FzEaCfRDs6MVOL9OG+3VuuFfndPdC+cTQi2AMRC4anLXCTj9jkQ== Completed in 266ms
+146 timing metavuln:cache:get:security-advisory:path-to-regexp:MgjHwCEvzlLz9p6+Yk8DdZLdAuprFRwJM/BcLFKUnsW5C1PzGCjbdvhfzdrEOsmCJB7eOyV5TvQe+zy4C++sJQ== Completed in 265ms
+147 timing metavuln:cache:get:security-advisory:qs:vVSN+MRVpdux32gCUfPGidHUGmS/0G5Ziwtmb1YXw3NARw1r47LtySeR7yFf/LZ4sKzi41443WWDDZzPHuCh9g== Completed in 263ms
+148 timing metavuln:cache:get:security-advisory:qs:iChjlXxtVMTpyXsUse674XoeCayLW4gF6rE7sQcXvHRFegwpM44fUr9Eqlmsmu+S9udu9w9eZmpzcAcyiUJMIQ== Completed in 262ms
+149 timing metavuln:cache:get:security-advisory:brace-expansion:ZHzAtnciS42HIMtUGajCifTIrkCUkWb93u/V1lJEt9HzdJ+ypMofn/dKgSOaziPQj+WGAcGS7t7WdPUHJBz0LA== Completed in 261ms
+150 timing metavuln:cache:get:security-advisory:@isaacs/brace-expansion:2GCyA6h+HhmaSfG8KHYn+DjOGLFHoUlSouYLbSY0pHidXpasu148eAM65sH4MGMxwdD1JLzVRLzkUpJJVoWSPw== Completed in 262ms
+151 timing metavuln:cache:get:security-advisory:ip-address:mxiFnLqgJFnT8jKSMTPh12e0rxTcOCgI0Ao8UsfJZME+Lu3zrSmjtcKjU1qyMxIZHKoV3eYW55JcdCyq8hpWMw== Completed in 258ms
+152 timing metavuln:cache:get:security-advisory:diff:zGuYmFKpmmsZx/VPwPiQZq/PeXFDma/HaFW3tW/FzA6ILd2C9pAaw33dKOqKE3XfwxVbEeP7NGuz9asQFXBaVA== Completed in 261ms
+153 timing metavuln:cache:get:security-advisory:minimatch:cXy8D45/B7nMpaRH3Zg9MjS1VuGJguUpVQP1gIKIZFeqQECAsO1uttJiVf6ZjXx/KuZk+JaiY2EYi+fh7ANFtA== Completed in 271ms
+154 timing metavuln:cache:get:security-advisory:tar:qPQeYPFDBIedTWfYK3sbnScF6Ha7ouTs+wgndnz4PT5P+/K+GBD4epoPcYpXlu6AC7gSJlCJTJeuKbYAFoK9PA== Completed in 258ms
+155 timing metavuln:cache:get:security-advisory:tar:cbwMpzkxWE086TmEbj2aUk80Z6hlvP0jzlWS+XiX15JwqEtFzUgHyHj3QX4I6EZYk8tgcYPuNr3hYFVCQY6e3Q== Completed in 252ms
+156 timing metavuln:cache:get:security-advisory:tar:Bbf0Br7FJ1lJBIJDoLLFwjsDrbaYgLVqfrwr0ATzSQWEKW7Xp073S+5zxU9imRf4OqRJHo2MsCDeyKR0KRVsdA== Completed in 250ms
+157 timing metavuln:cache:get:security-advisory:tar:eeMx7uxRjV2T2ub1XcSZGVUMDQllh5SgBOjApRXoDwccZb2xPyoJEKCNDkl/ZQGHcurw9K/Nf+wQF6u7SWH6CQ== Completed in 250ms
+158 timing metavuln:cache:get:security-advisory:tar:UWW3Y4BpqE/fE3Qp2/QBaix5a7TZZoP7gM6asxPYL9ED9MweoK3ryao+Bp0Y6Y8Xds/rmjAafpG21YRYkP3N4g== Completed in 250ms
+159 timing metavuln:cache:get:security-advisory:tar:vbDW3SJe6e2hhLv65iuyXehzCzEAirdu2MloZluu8ApJ5S0mpjZNCz+7tMRaz8WDOzMKfYQKi/M/IfcFNOa3Cw== Completed in 250ms
+160 timing metavuln:cache:get:security-advisory:picomatch:2VXNT0aF/Oc+aljqzVZL+y7UYoRsun3f1sCqjauwt4R4X9DizyqvONZbNtH8U58EY1DnyPNR0Ul3cX6UkEWNqw== Completed in 250ms
+161 timing metavuln:cache:get:security-advisory:picomatch:PpR3fLr2OHopA+LsAWF3etD15aOC+jSmDwUcp4VQCTrR40wKvI/IGhhNd2qAhozxRYiHGwb06lLJm+b8SMoG/w== Completed in 246ms
+162 http fetch GET 200 https://registry.npmjs.org/qs 334ms (cache hit)
+163 timing metavuln:packument:qs Completed in 340ms
+164 timing metavuln:load:security-advisory:qs:1113161 Completed in 4ms
+165 timing metavuln:calculate:security-advisory:qs:1113161 Completed in 345ms
+166 timing metavuln:load:security-advisory:qs:1113719 Completed in 3ms
+167 timing metavuln:calculate:security-advisory:qs:1113719 Completed in 347ms
+168 http fetch GET 200 https://registry.npmjs.org/diff 345ms (cache hit)
+169 timing metavuln:packument:diff Completed in 349ms
+170 timing metavuln:load:security-advisory:diff:1112706 Completed in 2ms
+171 timing metavuln:calculate:security-advisory:diff:1112706 Completed in 351ms
+172 http fetch GET 200 https://registry.npmjs.org/@isaacs%2fbrace-expansion 353ms (cache hit)
+173 timing metavuln:packument:@isaacs/brace-expansion Completed in 355ms
+174 timing metavuln:load:security-advisory:@isaacs/brace-expansion:1112954 Completed in 1ms
+175 timing metavuln:calculate:security-advisory:@isaacs/brace-expansion:1112954 Completed in 356ms
+176 http fetch GET 200 https://registry.npmjs.org/ip-address 351ms (cache hit)
+177 timing metavuln:packument:ip-address Completed in 356ms
+178 timing metavuln:load:security-advisory:ip-address:1117683 Completed in 1ms
+179 timing metavuln:calculate:security-advisory:ip-address:1117683 Completed in 357ms
+180 http fetch GET 200 https://registry.npmjs.org/tar 353ms (cache hit)
+181 timing metavuln:packument:tar Completed in 359ms
+182 timing metavuln:load:security-advisory:tar:1112659 Completed in 2ms
+183 timing metavuln:calculate:security-advisory:tar:1112659 Completed in 367ms
+184 timing metavuln:load:security-advisory:tar:1113300 Completed in 6ms
+185 timing metavuln:calculate:security-advisory:tar:1113300 Completed in 367ms
+186 timing metavuln:load:security-advisory:tar:1113375 Completed in 8ms
+187 timing metavuln:calculate:security-advisory:tar:1113375 Completed in 375ms
+188 timing metavuln:load:security-advisory:tar:1114200 Completed in 4ms
+189 timing metavuln:calculate:security-advisory:tar:1114200 Completed in 379ms
+190 timing metavuln:load:security-advisory:tar:1114302 Completed in 1ms
+191 timing metavuln:calculate:security-advisory:tar:1114302 Completed in 384ms
+192 timing metavuln:load:security-advisory:tar:1114680 Completed in 6ms
+193 timing metavuln:calculate:security-advisory:tar:1114680 Completed in 391ms
+194 http fetch GET 200 https://registry.npmjs.org/picomatch 387ms (cache hit)
+195 timing metavuln:packument:picomatch Completed in 393ms
+196 timing metavuln:load:security-advisory:picomatch:1115551 Completed in 0ms
+197 timing metavuln:calculate:security-advisory:picomatch:1115551 Completed in 396ms
+198 timing metavuln:load:security-advisory:picomatch:1115554 Completed in 0ms
+199 timing metavuln:calculate:security-advisory:picomatch:1115554 Completed in 392ms
+200 http fetch GET 200 https://registry.npmjs.org/path-to-regexp 420ms (cache hit)
+201 timing metavuln:packument:path-to-regexp Completed in 484ms
+202 timing metavuln:load:security-advisory:path-to-regexp:1115527 Completed in 0ms
+203 timing metavuln:calculate:security-advisory:path-to-regexp:1115527 Completed in 486ms
+204 http fetch GET 200 https://registry.npmjs.org/minimatch 499ms (cache hit)
+205 timing metavuln:packument:minimatch Completed in 506ms
+206 timing metavuln:load:security-advisory:minimatch:1113465 Completed in 2ms
+207 timing metavuln:calculate:security-advisory:minimatch:1113465 Completed in 517ms
+208 timing metavuln:load:security-advisory:minimatch:1113466 Completed in 1ms
+209 timing metavuln:calculate:security-advisory:minimatch:1113466 Completed in 506ms
+210 timing metavuln:load:security-advisory:minimatch:1113544 Completed in 0ms
+211 timing metavuln:calculate:security-advisory:minimatch:1113544 Completed in 505ms
+212 timing metavuln:load:security-advisory:minimatch:1113545 Completed in 0ms
+213 timing metavuln:calculate:security-advisory:minimatch:1113545 Completed in 506ms
+214 timing metavuln:load:security-advisory:minimatch:1113552 Completed in 1ms
+215 timing metavuln:calculate:security-advisory:minimatch:1113552 Completed in 506ms
+216 timing metavuln:load:security-advisory:minimatch:1113553 Completed in 1ms
+217 timing metavuln:calculate:security-advisory:minimatch:1113553 Completed in 507ms
+218 http fetch GET 200 https://registry.npmjs.org/brace-expansion 500ms (cache hit)
+219 timing metavuln:packument:brace-expansion Completed in 502ms
+220 timing metavuln:load:security-advisory:brace-expansion:1115541 Completed in 0ms
+221 timing metavuln:calculate:security-advisory:brace-expansion:1115541 Completed in 503ms
+222 timing metavuln:cache:get:security-advisory:@tufjs/models:4wxcDKEpUGR0GG34YoeguhvYrrA8gnDi+bbFPvJ1ftFhtA8GKofd1Zc9djffF9x3DYxzUuaf4dF+iJVeG77ZkQ== Completed in 35ms
+223 http fetch GET 200 https://registry.npmjs.org/@tufjs%2fmodels 48ms (cache hit)
+224 timing metavuln:packument:@tufjs/models Completed in 49ms
+225 timing metavuln:load:security-advisory:@tufjs/models:B00WbbnnDNaFGA7l9BgrTioYpRMzU4+U8SUF8cn65LwArJAK0O380QwyP/UyxPr7i9XUjX9/AADC41/edu9OrA== Completed in 2ms
+226 timing metavuln:calculate:security-advisory:@tufjs/models:B00WbbnnDNaFGA7l9BgrTioYpRMzU4+U8SUF8cn65LwArJAK0O380QwyP/UyxPr7i9XUjX9/AADC41/edu9OrA== Completed in 53ms
+227 timing metavuln:cache:get:security-advisory:@npmcli/arborist:2cnx2QG76FHqK4N0/5vD5f5NY5fa8GQZHNJhih2rExUiavj5Nf/vk0KyHajSuhTyC50GUvDrxchndyS0O2mDoQ== Completed in 65ms
+228 timing metavuln:cache:get:security-advisory:npm:IcCE2MuKaehvXDVouUQ9tYwfgGGa7a8DR834KKjULIRSYUXa7JG5sAgKZWKcnfGmlOgDfrf9fOH7mC0KCVc1Sg== Completed in 73ms
+229 timing metavuln:cache:get:security-advisory:@npmcli/map-workspaces:xgVTrxohakja2E3uHyJG97b0sAjQkk1y1Fy0Gum0HiABuUihM1fhWVOyaAsIG+ShCqyoiQ0TGRQuRsu6Js7sTg== Completed in 68ms
+230 timing metavuln:cache:get:security-advisory:glob:L68I6vb9Hvk1cvXZx3o3ZSc6ihYeTTOc8P57uuOt3IcyEQ9hWDiKrdrF2FNNMczFaUPbieAbEF4cPkLIth+Bww== Completed in 65ms
+231 timing metavuln:cache:get:security-advisory:ignore-walk:VUzpwOQjnbaDAQ/8ItTbKu7GPQ63xOGRgHgvQGy7qHd88hXCWsoJJlnWZo0h4KdA7eWTTJTxL/Y0j8oz59x4ng== Completed in 64ms
+232 timing metavuln:cache:get:security-advisory:libnpmdiff:L2XtDeHvEkNYhz37TNVSU5T/+pD5jzK9pk74/gTNbsC+oMa15mKlFB7OPrZnFe6n0oYI4dYpHbr83MAaQjyUww== Completed in 64ms
+233 http fetch GET 200 https://registry.npmjs.org/ignore-walk 105ms (cache hit)
+234 timing metavuln:packument:ignore-walk Completed in 114ms
+235 timing metavuln:load:security-advisory:ignore-walk:cXy8D45/B7nMpaRH3Zg9MjS1VuGJguUpVQP1gIKIZFeqQECAsO1uttJiVf6ZjXx/KuZk+JaiY2EYi+fh7ANFtA== Completed in 0ms
+236 timing metavuln:calculate:security-advisory:ignore-walk:cXy8D45/B7nMpaRH3Zg9MjS1VuGJguUpVQP1gIKIZFeqQECAsO1uttJiVf6ZjXx/KuZk+JaiY2EYi+fh7ANFtA== Completed in 115ms
+237 http fetch GET 200 https://registry.npmjs.org/glob 126ms (cache hit)
+238 timing metavuln:packument:glob Completed in 132ms
+239 timing metavuln:load:security-advisory:glob:cXy8D45/B7nMpaRH3Zg9MjS1VuGJguUpVQP1gIKIZFeqQECAsO1uttJiVf6ZjXx/KuZk+JaiY2EYi+fh7ANFtA== Completed in 1ms
+240 timing metavuln:calculate:security-advisory:glob:cXy8D45/B7nMpaRH3Zg9MjS1VuGJguUpVQP1gIKIZFeqQECAsO1uttJiVf6ZjXx/KuZk+JaiY2EYi+fh7ANFtA== Completed in 134ms
+241 http fetch GET 200 https://registry.npmjs.org/@npmcli%2fmap-workspaces 144ms (cache hit)
+242 timing metavuln:packument:@npmcli/map-workspaces Completed in 150ms
+243 timing metavuln:load:security-advisory:@npmcli/map-workspaces:cXy8D45/B7nMpaRH3Zg9MjS1VuGJguUpVQP1gIKIZFeqQECAsO1uttJiVf6ZjXx/KuZk+JaiY2EYi+fh7ANFtA== Completed in 1ms
+244 timing metavuln:calculate:security-advisory:@npmcli/map-workspaces:cXy8D45/B7nMpaRH3Zg9MjS1VuGJguUpVQP1gIKIZFeqQECAsO1uttJiVf6ZjXx/KuZk+JaiY2EYi+fh7ANFtA== Completed in 152ms
+245 http fetch GET 200 https://registry.npmjs.org/libnpmdiff 147ms (cache hit)
+246 timing metavuln:packument:libnpmdiff Completed in 149ms
+247 timing metavuln:load:security-advisory:libnpmdiff:cXy8D45/B7nMpaRH3Zg9MjS1VuGJguUpVQP1gIKIZFeqQECAsO1uttJiVf6ZjXx/KuZk+JaiY2EYi+fh7ANFtA== Completed in 1ms
+248 timing metavuln:calculate:security-advisory:libnpmdiff:cXy8D45/B7nMpaRH3Zg9MjS1VuGJguUpVQP1gIKIZFeqQECAsO1uttJiVf6ZjXx/KuZk+JaiY2EYi+fh7ANFtA== Completed in 151ms
+249 http fetch GET 200 https://registry.npmjs.org/@npmcli%2farborist 159ms (cache hit)
+250 timing metavuln:packument:@npmcli/arborist Completed in 171ms
+251 timing metavuln:load:security-advisory:@npmcli/arborist:cXy8D45/B7nMpaRH3Zg9MjS1VuGJguUpVQP1gIKIZFeqQECAsO1uttJiVf6ZjXx/KuZk+JaiY2EYi+fh7ANFtA== Completed in 3ms
+252 timing metavuln:calculate:security-advisory:@npmcli/arborist:cXy8D45/B7nMpaRH3Zg9MjS1VuGJguUpVQP1gIKIZFeqQECAsO1uttJiVf6ZjXx/KuZk+JaiY2EYi+fh7ANFtA== Completed in 174ms
+253 http fetch GET 200 https://registry.npmjs.org/npm 214ms (cache hit)
+254 timing metavuln:packument:npm Completed in 382ms
+255 timing metavuln:load:security-advisory:npm:cXy8D45/B7nMpaRH3Zg9MjS1VuGJguUpVQP1gIKIZFeqQECAsO1uttJiVf6ZjXx/KuZk+JaiY2EYi+fh7ANFtA== Completed in 5ms
+256 timing metavuln:calculate:security-advisory:npm:cXy8D45/B7nMpaRH3Zg9MjS1VuGJguUpVQP1gIKIZFeqQECAsO1uttJiVf6ZjXx/KuZk+JaiY2EYi+fh7ANFtA== Completed in 389ms
+257 timing metavuln:cache:get:security-advisory:express:jDqZejHDGpsT112hJSvxQQ1A0teFqovvvxTAeepcEiijEn1yTlMMVXhcCJwTipS1Zn3FowB9Nv2mk4kUNVslIw== Completed in 168ms
+258 http fetch GET 200 https://registry.npmjs.org/express 234ms (cache hit)
+259 timing metavuln:packument:express Completed in 257ms
+260 timing metavuln:load:security-advisory:express:MgjHwCEvzlLz9p6+Yk8DdZLdAuprFRwJM/BcLFKUnsW5C1PzGCjbdvhfzdrEOsmCJB7eOyV5TvQe+zy4C++sJQ== Completed in 6ms
+261 timing metavuln:calculate:security-advisory:express:MgjHwCEvzlLz9p6+Yk8DdZLdAuprFRwJM/BcLFKUnsW5C1PzGCjbdvhfzdrEOsmCJB7eOyV5TvQe+zy4C++sJQ== Completed in 264ms
+262 timing metavuln:cache:get:security-advisory:express:Qxs0t5MAyfWkxZXrn5d46toL85dY/eYqwQswCjVN3ze7zcZExphuyuGvmDChb/mvSc6A1P848uOkCDpJiTx7sA== Completed in 20ms
+263 timing metavuln:load:security-advisory:express:vVSN+MRVpdux32gCUfPGidHUGmS/0G5Ziwtmb1YXw3NARw1r47LtySeR7yFf/LZ4sKzi41443WWDDZzPHuCh9g== Completed in 2ms
+264 timing metavuln:calculate:security-advisory:express:vVSN+MRVpdux32gCUfPGidHUGmS/0G5Ziwtmb1YXw3NARw1r47LtySeR7yFf/LZ4sKzi41443WWDDZzPHuCh9g== Completed in 22ms
+265 timing metavuln:cache:get:security-advisory:body-parser:SVY1QJwUSfML2NehOGcSVstcXKS/eDua/5V2EUmKoUvvslju7nOUuG2U2s8Ab8JiwWLyYwOKkJuQtb6QCoInhg== Completed in 26ms
+266 http fetch GET 200 https://registry.npmjs.org/body-parser 42ms (cache hit)
+267 timing metavuln:packument:body-parser Completed in 46ms
+268 timing metavuln:load:security-advisory:body-parser:vVSN+MRVpdux32gCUfPGidHUGmS/0G5Ziwtmb1YXw3NARw1r47LtySeR7yFf/LZ4sKzi41443WWDDZzPHuCh9g== Completed in 1ms
+269 timing metavuln:calculate:security-advisory:body-parser:vVSN+MRVpdux32gCUfPGidHUGmS/0G5Ziwtmb1YXw3NARw1r47LtySeR7yFf/LZ4sKzi41443WWDDZzPHuCh9g== Completed in 47ms
+270 timing metavuln:cache:get:security-advisory:minimatch:B5Nwn2S1dXzfK+0is1VpiSBlv7pqRa6Eov/49txzsh/mzJY1lhiMW9TTBDtLllMcDvkJhEJtOSg/ZozMs9AtOA== Completed in 3ms
+271 timing metavuln:load:security-advisory:minimatch:2GCyA6h+HhmaSfG8KHYn+DjOGLFHoUlSouYLbSY0pHidXpasu148eAM65sH4MGMxwdD1JLzVRLzkUpJJVoWSPw== Completed in 0ms
+272 timing metavuln:calculate:security-advisory:minimatch:2GCyA6h+HhmaSfG8KHYn+DjOGLFHoUlSouYLbSY0pHidXpasu148eAM65sH4MGMxwdD1JLzVRLzkUpJJVoWSPw== Completed in 5ms
+273 timing metavuln:cache:get:security-advisory:minimatch:G8h2793WCaVrMJUTXYF+s/K/iqdP0PDQt0yKUJtmg/XbDK6SQxL7agMLArisp38w7hSPG6F5ZmCtVLXcd2IZLA== Completed in 11ms
+274 timing metavuln:load:security-advisory:minimatch:ZHzAtnciS42HIMtUGajCifTIrkCUkWb93u/V1lJEt9HzdJ+ypMofn/dKgSOaziPQj+WGAcGS7t7WdPUHJBz0LA== Completed in 3ms
+275 timing metavuln:calculate:security-advisory:minimatch:ZHzAtnciS42HIMtUGajCifTIrkCUkWb93u/V1lJEt9HzdJ+ypMofn/dKgSOaziPQj+WGAcGS7t7WdPUHJBz0LA== Completed in 15ms
+276 timing metavuln:cache:get:security-advisory:libnpmdiff:L2201Cc8ZdQpb5YhXQBwcGhs+5jCML2cOqQ0KRq9dBe9W7lLV9foXyskXM8FKi7m3m8t4wuZPfigdTN/6nvyig== Completed in 6ms
+277 timing metavuln:load:security-advisory:libnpmdiff:zGuYmFKpmmsZx/VPwPiQZq/PeXFDma/HaFW3tW/FzA6ILd2C9pAaw33dKOqKE3XfwxVbEeP7NGuz9asQFXBaVA== Completed in 1ms
+278 timing metavuln:calculate:security-advisory:libnpmdiff:zGuYmFKpmmsZx/VPwPiQZq/PeXFDma/HaFW3tW/FzA6ILd2C9pAaw33dKOqKE3XfwxVbEeP7NGuz9asQFXBaVA== Completed in 9ms
+279 timing metavuln:cache:get:security-advisory:socks:WgSMmGbUv3KhNv5jTXUXVn/9bvp5F/qU5ZCfzP+YS9q7XcYRHf0mVWbyOppQ0Yj37S2Jy0HrcSAEYwcz3RCJ8Q== Completed in 14ms
+280 http fetch GET 200 https://registry.npmjs.org/socks 38ms (cache hit)
+281 timing metavuln:packument:socks Completed in 40ms
+282 timing metavuln:load:security-advisory:socks:mxiFnLqgJFnT8jKSMTPh12e0rxTcOCgI0Ao8UsfJZME+Lu3zrSmjtcKjU1qyMxIZHKoV3eYW55JcdCyq8hpWMw== Completed in 3ms
+283 timing metavuln:calculate:security-advisory:socks:mxiFnLqgJFnT8jKSMTPh12e0rxTcOCgI0Ao8UsfJZME+Lu3zrSmjtcKjU1qyMxIZHKoV3eYW55JcdCyq8hpWMw== Completed in 44ms
+284 timing metavuln:cache:get:security-advisory:npm:/u/EyRYZMOXp+oWnlSaasvW5wZL7NR4qIiDsU/tLBbgBsrqH+OQLtSTzphMsLLJlGbcBn9e4S6qV3pCcZcebTA== Completed in 39ms
+285 timing metavuln:load:security-advisory:npm:qPQeYPFDBIedTWfYK3sbnScF6Ha7ouTs+wgndnz4PT5P+/K+GBD4epoPcYpXlu6AC7gSJlCJTJeuKbYAFoK9PA== Completed in 12ms
+286 timing metavuln:calculate:security-advisory:npm:qPQeYPFDBIedTWfYK3sbnScF6Ha7ouTs+wgndnz4PT5P+/K+GBD4epoPcYpXlu6AC7gSJlCJTJeuKbYAFoK9PA== Completed in 52ms
+287 timing metavuln:cache:get:security-advisory:libnpmdiff:ZWrS+mcxykuvNrOB6+ByNfj0uMPt+EkjaUxLuHwIgHYy/bhgBy8NJ8Jr9jHL0+WnWxnAboOzzdqzc1PLFvOumQ== Completed in 52ms
+288 timing metavuln:load:security-advisory:libnpmdiff:qPQeYPFDBIedTWfYK3sbnScF6Ha7ouTs+wgndnz4PT5P+/K+GBD4epoPcYpXlu6AC7gSJlCJTJeuKbYAFoK9PA== Completed in 3ms
+289 timing metavuln:calculate:security-advisory:libnpmdiff:qPQeYPFDBIedTWfYK3sbnScF6Ha7ouTs+wgndnz4PT5P+/K+GBD4epoPcYpXlu6AC7gSJlCJTJeuKbYAFoK9PA== Completed in 55ms
+290 timing metavuln:cache:get:security-advisory:pacote:YEGC2tr63UMpFVgVz0cNuFV3bU8S49mLN9fSXNf8TSeZFIG2IIlfze6ewtj1AcnmZfEVnbmO+QJdA95V6mwuNA== Completed in 58ms
+291 timing metavuln:cache:get:security-advisory:node-gyp:l/WeQkAPWJ0/mHENc58u9JNvnzqgqXWhnfEbUs8zhmL1UmoofkwGw4482B1GnFfApFQ5hXpUDaLf7UIPw6jpww== Completed in 62ms
+292 http fetch GET 200 https://registry.npmjs.org/node-gyp 132ms (cache hit)
+293 timing metavuln:packument:node-gyp Completed in 141ms
+294 timing metavuln:load:security-advisory:node-gyp:qPQeYPFDBIedTWfYK3sbnScF6Ha7ouTs+wgndnz4PT5P+/K+GBD4epoPcYpXlu6AC7gSJlCJTJeuKbYAFoK9PA== Completed in 3ms
+295 timing metavuln:calculate:security-advisory:node-gyp:qPQeYPFDBIedTWfYK3sbnScF6Ha7ouTs+wgndnz4PT5P+/K+GBD4epoPcYpXlu6AC7gSJlCJTJeuKbYAFoK9PA== Completed in 145ms
+296 http fetch GET 200 https://registry.npmjs.org/pacote 153ms (cache hit)
+297 timing metavuln:packument:pacote Completed in 175ms
+298 timing metavuln:load:security-advisory:pacote:qPQeYPFDBIedTWfYK3sbnScF6Ha7ouTs+wgndnz4PT5P+/K+GBD4epoPcYpXlu6AC7gSJlCJTJeuKbYAFoK9PA== Completed in 42ms
+299 timing metavuln:calculate:security-advisory:pacote:qPQeYPFDBIedTWfYK3sbnScF6Ha7ouTs+wgndnz4PT5P+/K+GBD4epoPcYpXlu6AC7gSJlCJTJeuKbYAFoK9PA== Completed in 220ms
+300 timing metavuln:cache:get:security-advisory:tinyglobby:JbTUSH3GuHgnWPTwynmNc2XBjGvJ1kBIVuOXAIcVt2zAN9JAmGoGXkmSGRzahtsyELbqgzBAd3ywFXmJPwH9Ww== Completed in 43ms
+301 timing metavuln:cache:get:security-advisory:fdir:I7IZptQLXjhZ5TVjlLB1vJ5JfgkV8HlzAFySNm0W8XK7Klvz8UNk59CjMAZ1uqS4G0ttvhpXbZB8RE9vuO4PCA== Completed in 39ms
+302 http fetch GET 200 https://registry.npmjs.org/fdir 85ms (cache hit)
+303 timing metavuln:packument:fdir Completed in 91ms
+304 timing metavuln:load:security-advisory:fdir:2VXNT0aF/Oc+aljqzVZL+y7UYoRsun3f1sCqjauwt4R4X9DizyqvONZbNtH8U58EY1DnyPNR0Ul3cX6UkEWNqw== Completed in 0ms
+305 timing metavuln:calculate:security-advisory:fdir:2VXNT0aF/Oc+aljqzVZL+y7UYoRsun3f1sCqjauwt4R4X9DizyqvONZbNtH8U58EY1DnyPNR0Ul3cX6UkEWNqw== Completed in 91ms
+306 http fetch GET 200 https://registry.npmjs.org/tinyglobby 95ms (cache hit)
+307 timing metavuln:packument:tinyglobby Completed in 99ms
+308 timing metavuln:load:security-advisory:tinyglobby:2VXNT0aF/Oc+aljqzVZL+y7UYoRsun3f1sCqjauwt4R4X9DizyqvONZbNtH8U58EY1DnyPNR0Ul3cX6UkEWNqw== Completed in 1ms
+309 timing metavuln:calculate:security-advisory:tinyglobby:2VXNT0aF/Oc+aljqzVZL+y7UYoRsun3f1sCqjauwt4R4X9DizyqvONZbNtH8U58EY1DnyPNR0Ul3cX6UkEWNqw== Completed in 101ms
+310 timing metavuln:cache:get:security-advisory:express:q/7skjthOJPOG2ZYTJ9Rja6cWg3KGMxeevTEmftlBxFyNVt2s4UnSqwD8SEBUwJTSKwe3sbnu9VlN7kQqn3M6A== Completed in 20ms
+311 timing metavuln:load:security-advisory:express:SVY1QJwUSfML2NehOGcSVstcXKS/eDua/5V2EUmKoUvvslju7nOUuG2U2s8Ab8JiwWLyYwOKkJuQtb6QCoInhg== Completed in 8ms
+312 timing metavuln:calculate:security-advisory:express:SVY1QJwUSfML2NehOGcSVstcXKS/eDua/5V2EUmKoUvvslju7nOUuG2U2s8Ab8JiwWLyYwOKkJuQtb6QCoInhg== Completed in 29ms
+313 timing auditReport:init Completed in 1761ms
+314 timing reify:audit Completed in 3412ms
+315 timing reify Completed in 6543ms
+316 timing command:install Completed in 7011ms
+317 verbose exit 0
+318 timing npm Completed in 8639ms
+319 info ok

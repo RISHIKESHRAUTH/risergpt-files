@@ -1,0 +1,667 @@
+require('dotenv').config();
+
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
+const axios = require('axios');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
+const admin = require('firebase-admin');
+
+const firebaseConfig = require('./firebase-applet-config.json');
+
+// Initialize Firebase Admin
+if (!admin.apps.length) {
+    admin.initializeApp({
+        projectId: firebaseConfig.projectId,
+    });
+}
+
+const app = express();
+
+app.set('trust proxy', 1);
+
+const PORT = process.env.PORT || 3000;
+const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
+
+// --- SECURITY MIDDLEWARE ---
+app.disable('x-powered-by');
+
+// CORS configuration
+const allowedOrigins = [
+    'https://risergpt.qzz.io',
+    /^http:\/\/localhost:\d+$/,
+    /^http:\/\/127\.0\.0\.1:\d+$/,
+    /^https:\/\/.*\.run\.app$/
+];
+app.use(cors({
+    origin: function (origin, callback) {
+        if (!origin) return callback(null, true);
+        const allowed = allowedOrigins.some(o => 
+            typeof o === 'string' ? o === origin : o.test(origin)
+        );
+        if (allowed) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true
+}));
+
+// Helmet Configuration
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net", "https://www.gstatic.com"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com"],
+            imgSrc: ["'self'", "data:", "blob:", "https:"],
+            connectSrc: ["'self'", "https://api.tavily.com", "https://api.groq.com", "https://api.x.ai", "https://identitytoolkit.googleapis.com", "https://securetoken.googleapis.com"],
+            frameSrc: ["'none'"],
+        },
+    },
+    crossOriginEmbedderPolicy: false,
+}));
+
+app.use(cookieParser());
+app.use(express.json({ limit: '50mb' }));
+
+// Rate Limiters
+const globalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, 
+    max: 200, 
+    message: { error: 'Too many requests, please try again later.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, 
+    max: 15,
+    message: { error: 'Too many attempts, please try again after 15 minutes.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+app.use('/api/', globalLimiter);
+app.use('/api/auth/', authLimiter);
+app.use('/api/users/admin-login', authLimiter);
+
+// Remove dangerous public file access
+app.use(express.static(path.join(__dirname, 'public'), {
+    setHeaders: (res, fp) => {
+        if (fp.endsWith('.html')) {
+            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+            res.setHeader('Pragma', 'no-cache');
+            res.setHeader('Expires', '0');
+        }
+    }
+}));
+
+// --- LOAD ROUTES ---
+const authRoutes = require('./server/auth/authRoutes');
+app.use('/api/auth', authRoutes);
+
+// --- SETUP DIRECTORIES ---
+const DATA_DIR = path.join(__dirname, 'riser_data');
+const CHATS_DIR = path.join(DATA_DIR, 'chats');
+const CONFIG_FILE = path.join(DATA_DIR, 'config.json');
+const USERS_FILE = path.join(DATA_DIR, 'users.json');
+
+if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
+if (!fs.existsSync(CHATS_DIR)) fs.mkdirSync(CHATS_DIR);
+if (!fs.existsSync(USERS_FILE)) fs.writeFileSync(USERS_FILE, JSON.stringify([], null, 2));
+
+function getUserChatDir(email) {
+    let folderName = 'guest';
+    if (email && email !== 'guest') {
+        try {
+            const users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+            const user = users.find(u => u.email === email);
+            if (user && user.name) {
+                folderName = user.name.replace(/[^a-z0-9]/gi, '_').trim() || 'user';
+            } else {
+                folderName = email.replace(/[^a-z0-9]/gi, '_');
+            }
+        } catch (e) {
+            folderName = String(email).replace(/[^a-z0-9]/gi, '_');
+        }
+    }
+    const userDir = path.join(CHATS_DIR, folderName);
+    if (!fs.existsSync(userDir)) {
+        fs.mkdirSync(userDir, { recursive: true });
+    }
+    return userDir;
+}
+
+const { authenticateToken, authenticateOptional, requireAdmin } = require('./server/middleware/authMiddleware');
+
+// Default config setup
+try {
+    if (fs.existsSync(USERS_FILE)) {
+        let usersData = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+        let modified = false;
+        usersData = usersData.map(u => {
+            if (u.plan === 'Free' || u.plan === 'FREE') {
+                u.plan = 'Muft Plan';
+                modified = true;
+            }
+            return u;
+        });
+        if (modified) {
+            fs.writeFileSync(USERS_FILE, JSON.stringify(usersData, null, 2));
+            console.log('Migrated old plan names to "Muft Plan"');
+        }
+    }
+} catch (e) {
+    console.error('Migration error:', e);
+}
+
+const defaultConfig = {
+    announcement: { text: "", status: "inactive" },
+    coupons: [],
+    plans: [
+        {
+            id: "muft",
+            name: "Muft Plan",
+            price: 0,
+            discount: 0,
+            description: "Intelligence for everyday tasks (Free for everyone)",
+            features: [
+                "Access to RH-6",
+                "Standard messaging",
+                "Image analysis",
+                "Unlimited Image Generations",
+                "Limited memory & context"
+            ],
+            isHighlight: false
+        },
+        {
+            id: "prarambh",
+            name: "Prarambh Plan",
+            price: 299,
+            discount: 0,
+            description: "Entry-level professional features",
+            features: [
+                "Fast Access to RH-6",
+                "Priority messaging",
+                "Image analysis",
+                "Unlimited Image Generations",
+                "Enhanced memory & context"
+            ],
+            isHighlight: true
+        },
+        {
+            id: "tiranga",
+            name: "Tiranga Plan",
+            price: 1299,
+            discount: 0,
+            description: "Advanced intelligence and reasoning",
+            features: [
+                "RH-6 Advanced Model",
+                "Extreme messaging speed",
+                "Image analysis",
+                "Unlimited Image Generations",
+                "Max memory & context"
+            ],
+            isHighlight: false
+        },
+        {
+            id: "bharat",
+            name: "Bharat Plan",
+            price: 15999,
+            discount: 0,
+            description: "Full potential of RiserGPT for enterprises",
+            features: [
+                "Full RH-6 Suite Access",
+                "Unlimited everything",
+                "Dedicated processing power",
+                "Specialized image/video tools",
+                "Enterprise level context"
+            ],
+            isHighlight: false
+        }
+    ]
+};
+
+if (!fs.existsSync(CONFIG_FILE)) {
+    fs.writeFileSync(CONFIG_FILE, JSON.stringify(defaultConfig, null, 2));
+}
+
+// API Endpoint: Get Configuration
+app.get('/api/config', (req, res) => {
+    fs.readFile(CONFIG_FILE, 'utf8', (err, data) => {
+        if (err) {
+            console.error("Error reading config");
+            return res.status(500).json({ error: 'Service temporarily unavailable' });
+        }
+        try {
+            const config = JSON.parse(data);
+            const merged = { ...defaultConfig, ...config };
+            if(!merged.plans) merged.plans = defaultConfig.plans;
+            res.json(merged);
+        } catch (e) {
+            res.json(defaultConfig);
+        }
+    });
+});
+
+// API Endpoint: Save Configuration (ADMIN ONLY)
+app.post('/api/config', authenticateToken, requireAdmin, (req, res) => {
+    const newConfig = req.body;
+    fs.writeFile(CONFIG_FILE, JSON.stringify(newConfig, null, 2), (err) => {
+        if (err) {
+            console.error("Error writing config");
+            return res.status(500).json({ error: 'Service temporarily unavailable' });
+        }
+        res.json({ success: true });
+    });
+});
+
+// --- USER MANAGEMENT ENDPOINTS ---
+
+app.post('/api/users/save', async (req, res) => {
+    try {
+        const userData = req.body;
+        let users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+        
+        const existingIndex = users.findIndex(u => u.email === userData.email);
+        
+        let savedUser;
+        if (existingIndex > -1) {
+            // Update existing
+            const updateData = { ...userData };
+            if (updateData.password && updateData.password !== users[existingIndex].password) {
+                // If password was provided and differs, hash it
+                updateData.password = await bcrypt.hash(updateData.password, 10);
+            } else {
+                // otherwise keep existing password
+                delete updateData.password; 
+            }
+            users[existingIndex] = { ...users[existingIndex], ...updateData };
+            savedUser = users[existingIndex];
+        } else {
+            // New User
+            if (!userData.password) return res.status(400).json({ error: 'Password required' });
+            userData.password = await bcrypt.hash(userData.password, 10);
+            
+            const newUser = {
+                id: Date.now().toString(),
+                isBanned: false,
+                plan: "Muft Plan",
+                planStatus: "active",
+                planExpiry: "never",
+                daysRemaining: "unlimited",
+                ...userData,
+                createdAt: new Date().toISOString()
+            };
+            users.push(newUser);
+            savedUser = newUser;
+        }
+        
+        fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+        
+        const token = jwt.sign({ email: savedUser.email, role: 'user' }, JWT_SECRET);
+        res.json({ success: true, token });
+    } catch (error) {
+        console.error('Save User Error');
+        res.status(500).json({ error: 'Service temporarily unavailable' });
+    }
+});
+
+app.post('/api/users/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+        const user = users.find(u => u.email === email);
+        
+        if (!user) {
+            return res.status(401).json({ error: 'Invalid email or password' });
+        }
+        
+        let passwordMatches = false;
+        
+        if (user.password.startsWith('$2b$')) {
+            // It's a bcrypt hash
+            passwordMatches = await bcrypt.compare(password, user.password);
+        } else {
+            // Old plain text password migration
+            if (user.password === password) {
+                passwordMatches = true;
+                // Migrate to bcrypt immediately
+                user.password = await bcrypt.hash(password, 10);
+                fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+                console.log(`Migrated password for user ${user.email}`);
+            }
+        }
+        
+        if (passwordMatches) {
+            if (user.isBanned) return res.status(403).json({ error: 'This account is banned.' });
+            
+            const token = jwt.sign({ email: user.email, role: 'user' }, JWT_SECRET);
+            res.json({ success: true, user, token });
+        } else {
+            res.status(401).json({ error: 'Invalid email or password' });
+        }
+    } catch (error) {
+        console.error('Login Error');
+        res.status(500).json({ error: 'Service temporarily unavailable' });
+    }
+});
+
+// Admin Login
+app.post('/api/users/admin-login', (req, res) => {
+    const { username, password } = req.body;
+    if (username === 'rishiop' && password === 'R20100910r#') {
+        const token = jwt.sign({ role: 'admin' }, JWT_SECRET, { expiresIn: '8h' });
+        res.json({ success: true, token });
+    } else {
+        res.status(401).json({ error: 'Invalid admin credentials' });
+    }
+});
+
+app.post('/api/users/save-bulk', authenticateToken, requireAdmin, (req, res) => {
+    try {
+        const users = req.body;
+        if (!Array.isArray(users)) return res.status(400).json({ error: 'Data must be an array' });
+        fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+        res.json({ success: true });
+    } catch (error) {
+        console.error("Bulk save error");
+        res.status(500).json({ error: 'Service temporarily unavailable' });
+    }
+});
+
+app.get('/api/users', authenticateToken, requireAdmin, (req, res) => {
+    try {
+        const users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+        res.json(users);
+    } catch (error) {
+        console.error("Fetch users error");
+        res.status(500).json({ error: 'Service temporarily unavailable' });
+    }
+});
+
+// --- CHAT STORAGE ENDPOINTS ---
+
+app.get('/api/chats', authenticateOptional, (req, res) => {
+    const userEmail = req.user.email;
+    if (!userEmail || userEmail === 'guest') return res.json([]);
+    
+    const userDir = getUserChatDir(userEmail);
+    let allChats = [];
+    
+    if (fs.existsSync(userDir)) {
+        const files = fs.readdirSync(userDir);
+        for (const file of files) {
+            if (file.endsWith('.json')) {
+                try {
+                    const data = JSON.parse(fs.readFileSync(path.join(userDir, file), 'utf8'));
+                    allChats.push(data);
+                } catch (e) {
+                    console.error('Error parsing chat file');
+                }
+            }
+        }
+    }
+    
+    // Fallback sync
+    if (fs.existsSync(CHATS_DIR)) {
+        const files = fs.readdirSync(CHATS_DIR);
+        for (const file of files) {
+            if (file.endsWith('.json')) {
+                try {
+                    const data = JSON.parse(fs.readFileSync(path.join(CHATS_DIR, file), 'utf8'));
+                    if (data.owner === userEmail && !allChats.find(c => c.id === data.id)) {
+                        allChats.push(data);
+                    }
+                } catch (e) {}
+            }
+        }
+    }
+    
+    allChats.sort((a, b) => b.timestamp - a.timestamp);
+    res.json(allChats);
+});
+
+app.get('/api/chats/:id', authenticateOptional, (req, res) => {
+    const chatId = path.basename(req.params.id); // Prevent path traversal
+    const userEmail = req.user.email;
+    
+    const userDir = getUserChatDir(userEmail);
+    let chatFile = path.join(userDir, `${chatId}.json`);
+    
+    if (!fs.existsSync(chatFile)) {
+        const fallbackPath = path.join(CHATS_DIR, `${chatId}.json`);
+        if (fs.existsSync(fallbackPath)) {
+            chatFile = fallbackPath;
+        } else {
+            return res.status(404).json({ error: 'Chat not found' });
+        }
+    }
+
+    fs.readFile(chatFile, 'utf8', (err, data) => {
+        if (err) return res.status(500).json({ error: 'Read error' });
+        try {
+            const chat = JSON.parse(data);
+            if (chat.shared || chat.owner === userEmail || req.user.role === 'admin') {
+                res.json(chat);
+            } else {
+                res.status(403).json({ error: 'Access denied' });
+            }
+        } catch (e) {
+            res.status(500).json({ error: 'Parse error' });
+        }
+    });
+});
+
+app.post('/api/chats', authenticateOptional, (req, res) => {
+    const chat = req.body;
+    if (!chat.id) return res.status(400).json({ error: 'Chat ID required' });
+    const chatId = path.basename(chat.id); // Prevent path traversal
+    
+    const requestedEmail = req.user.email;
+    if(chat.owner !== requestedEmail && req.user.role !== 'admin') {
+        chat.owner = requestedEmail; // Force ownership to the authenticated user
+    }
+
+    const userDir = getUserChatDir(chat.owner);
+    const chatFile = path.join(userDir, `${chatId}.json`);
+    
+    if (fs.existsSync(chatFile)) {
+        try {
+            const existingData = JSON.parse(fs.readFileSync(chatFile, 'utf8'));
+            if (existingData.owner && existingData.owner !== chat.owner && req.user.role !== 'admin') {
+                return res.status(403).json({ error: 'Access denied' });
+            }
+        } catch(e) {}
+    }
+
+    fs.writeFile(chatFile, JSON.stringify(chat, null, 2), (err) => {
+        if (err) return res.status(500).json({ error: 'Service temporarily unavailable' });
+        res.json({ success: true });
+    });
+});
+
+app.delete('/api/chats/:id', authenticateOptional, (req, res) => {
+    const chatId = path.basename(req.params.id);
+    const userEmail = req.user.email;
+    
+    const userDir = getUserChatDir(userEmail);
+    let chatFile = path.join(userDir, `${chatId}.json`);
+    
+    if (!fs.existsSync(chatFile)) {
+        const fallbackPath = path.join(CHATS_DIR, `${chatId}.json`);
+        if (fs.existsSync(fallbackPath)) {
+            chatFile = fallbackPath;
+        } else {
+            return res.status(404).json({ error: 'Not found' });
+        }
+    }
+
+    try {
+        const existingData = JSON.parse(fs.readFileSync(chatFile, 'utf8'));
+        if (existingData.owner !== userEmail && req.user.role !== 'admin') {
+            return res.status(403).json({ error: 'Access denied' });
+        }
+    } catch(e) {
+        return res.status(500).json({ error: 'Parse error' });
+    }
+
+    fs.unlink(chatFile, (err) => {
+        if (err) return res.status(500).json({ error: 'Service temporarily unavailable' });
+        res.json({ success: true });
+    });
+});
+
+// --- API PROXY ENDPOINTS ---
+
+const MODEL_MAP = {
+    'RH-6': 'llama-3.3-70b-versatile',
+    'RH-DEV-4': 'qwen/qwen3-32b',
+    'RH-IMG-3': 'risergpt-vision-engine',
+    'RH-VDO-1': 'ByteDance/Seedance-1.0-lite'
+};
+
+app.post('/api/chat', authenticateOptional, async (req, res) => {
+    const { model, messages, stream } = req.body;
+
+    if (model === 'RH-IMG-3') {
+        const lastMessage = messages[messages.length - 1].content;
+        const proxiedUrl = `/api/image-proxy?prompt=${encodeURIComponent(lastMessage)}`;
+        
+        if (stream) {
+            res.setHeader('Content-Type', 'text/event-stream');
+            res.write(`data: ${JSON.stringify({ choices: [{ delta: { content: "✨ **RH-IMG-3** is initializing neural painting...\n\n" } }] })}\n\n`);
+            res.write(`data: ${JSON.stringify({ choices: [{ delta: { content: `![Generated Image](${proxiedUrl})` } }] })}\n\n`);
+            res.write('data: [DONE]\n\n');
+            return res.end();
+        } else {
+            return res.json({ choices: [{ message: { content: `![Generated Image](${proxiedUrl})` } }] });
+        }
+    }
+
+    if (model === 'RH-VDO-1') {
+        const responseText = "🎥 **Status: Under Development**\n\nThe RiserGPT Video Engine (Seedance-1.0-lite) is currently being optimized for cinematic 4K production. This feature will be available in the next major update. Stay tuned!";
+        if (stream) {
+            res.setHeader('Content-Type', 'text/event-stream');
+            res.write(`data: ${JSON.stringify({ choices: [{ delta: { content: responseText } }] })}\n\n`);
+            res.write('data: [DONE]\n\n');
+            return res.end();
+        } else {
+            return res.json({ choices: [{ message: { content: responseText } }] });
+        }
+    }
+
+    let apiKey = process.env.GROQ_API_KEY;
+    let apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
+    const groqModel = MODEL_MAP[model] || model;
+    
+    if (groqModel.startsWith('grok-')) {
+        apiKey = process.env.XAI_API_KEY;
+        apiUrl = 'https://api.x.ai/v1/chat/completions';
+    }
+
+    if (!apiKey) {
+        return res.status(500).json({ error: 'Service temporarily unavailable' });
+    }
+
+    try {
+        const response = await axios({
+            method: 'post',
+            url: apiUrl,
+            headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json'
+            },
+            data: {
+                model: groqModel,
+                messages: messages,
+                stream: stream || false
+            },
+            responseType: stream ? 'stream' : 'json'
+        });
+
+        if (stream) {
+            res.setHeader('Content-Type', 'text/event-stream');
+            res.setHeader('Cache-Control', 'no-cache');
+            res.setHeader('Connection', 'keep-alive');
+            response.data.pipe(res);
+        } else {
+            res.json(response.data);
+        }
+    } catch (error) {
+        console.error('API Error:', error.message);
+        res.status(500).json({ error: 'Service temporarily unavailable' });
+    }
+});
+
+// Search Routing (Tavily)
+app.post('/api/search', authenticateOptional, async (req, res) => {
+    const { query } = req.body;
+    const apiKey = process.env.TAVILY_API_KEY;
+
+    if (!apiKey) return res.status(500).json({ error: 'Service temporarily unavailable' });
+
+    try {
+        const response = await axios.post('https://api.tavily.com/search', {
+            api_key: apiKey,
+            query: query,
+            search_depth: "smart",
+            include_answer: true,
+            max_results: 5
+        });
+        res.json(response.data);
+    } catch (error) {
+        console.error('Search Error:', error.message);
+        res.status(500).json({ error: 'Service temporarily unavailable' });
+    }
+});
+
+app.get('/api/image-proxy', async (req, res) => {
+    const { prompt } = req.query;
+    if (!prompt) return res.status(400).send('Prompt required');
+    const width = 1024, height = 1024;
+    const seed = Math.floor(Math.random() * 9999999);
+    
+    const primaryModel = 'flux-realism';
+    const fallbackModel = 'turbo';
+
+    const generateUrl = (m) => `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true&model=${m}`;
+
+    try {
+        const response = await axios({
+            url: generateUrl(primaryModel),
+            method: 'GET',
+            responseType: 'stream',
+            timeout: 15000
+        });
+        res.setHeader('Content-Type', response.headers['content-type']);
+        response.data.pipe(res);
+    } catch (e) {
+        console.error("Primary image failed");
+        try {
+            const fallbackResponse = await axios({
+                url: generateUrl(fallbackModel),
+                method: 'GET',
+                responseType: 'stream'
+            });
+            res.setHeader('Content-Type', fallbackResponse.headers['content-type']);
+            fallbackResponse.data.pipe(res);
+        } catch (e2) {
+            res.status(500).send('Service temporarily unavailable');
+        }
+    }
+});
+
+// Start the server
+app.listen(PORT, () => {
+    console.log(`RiserGPT Secure Server running on port ${PORT}`);
+});

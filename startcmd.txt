@@ -1,0 +1,2 @@
+cd C:\cloudflared
+cloudflared tunnel run risergpt

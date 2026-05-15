@@ -1,0 +1,69 @@
+{
+  "announcement": {
+    "text": "RH-6 ONLINE",
+    "status": "active"
+  },
+  "coupons": [],
+  "plans": [
+    {
+      "id": "muft",
+      "name": "Muft Plan",
+      "price": 0,
+      "discount": 0,
+      "description": "Intelligence for everyday tasks",
+      "features": [
+        "Access to RH-5",
+        "Normal text generation",
+        "Image analysis",
+        "Unlimited uploads",
+        "Limited memory & context"
+      ],
+      "isHighlight": false
+    },
+    {
+      "id": "prarambh",
+      "name": "Prarambh Plan",
+      "price": 299,
+      "discount": 0,
+      "description": "More access to popular features",
+      "features": [
+        "Access to RH-5 complex reasoning",
+        "Standard messaging",
+        "Image analysis",
+        "Unlimited uploads",
+        "Longer memory & context"
+      ],
+      "isHighlight": true
+    },
+    {
+      "id": "tiranga",
+      "name": "Tiranga Plan",
+      "price": 1299,
+      "discount": 300,
+      "description": "More access to advanced RiserGPT",
+      "features": [
+        "RH-5 with advanced reasoning",
+        "Expanded messaging",
+        "Good image analysis",
+        "Unlimited uploads",
+        "Maximum memory & context"
+      ],
+      "isHighlight": false
+    },
+    {
+      "id": "bharat",
+      "name": "Bharat Plan",
+      "price": 5499,
+      "discount": 2000,
+      "description": "Full access to the best of RiserGPT",
+      "features": [
+        "RH-5 with max reasoning",
+        "Unlimited messages",
+        "Best image analysis",
+        "Unlimited Image Generations",
+        "Maximum memory & context"
+      ],
+      "isHighlight": false
+    }
+  ]
+}
