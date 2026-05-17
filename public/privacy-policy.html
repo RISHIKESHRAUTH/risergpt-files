@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy | RiserGPT</title>
+    <style>
+        :root {
+            --primary: #0ea5e9;
+            --primary-hover: #38bdf8;
+            --bg-dark: #020617;
+            --glass: rgba(15, 23, 42, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-glow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at 50% 50%, #1e293b 0%, #020617 100%);
+            z-index: -1;
+        }
+
+        .glow-sphere {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(14, 165, 233, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            animation: move 20s infinite alternate ease-in-out;
+        }
+
+        @keyframes move {
+            from { transform: translate(-10%, -10%); }
+            to { transform: translate(20%, 30%); }
+        }
+
+        /* Navbar */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(2, 6, 23, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-main);
+            text-decoration: none;
+            letter-spacing: -1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo span { color: var(--primary); }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover { color: var(--primary); }
+
+        /* Content Container */
+        .container {
+            max-width: 800px;
+            margin: 140px auto 80px;
+            padding: 0 20px;
+        }
+
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            letter-spacing: -1.5px;
+            background: linear-gradient(to bottom right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .update-date {
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 40px;
+            display: block;
+        }
+
+        section {
+            margin-bottom: 40px;
+        }
+
+        h2 {
+            font-size: 20px;
+            margin-bottom: 16px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        h2::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
+        p {
+            color: var(--text-dim);
+            margin-bottom: 20px;
+            line-height: 1.8;
+            font-size: 16px;
+        }
+
+        ul {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+
+        ul li {
+            color: var(--text-dim);
+            margin-bottom: 12px;
+            padding-left: 24px;
+            position: relative;
+        }
+
+        ul li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+        }
+
+        /* Footer */
+        footer {
+            padding: 60px 40px;
+            background: rgba(2, 6, 23, 0.95);
+            border-top: 1px solid var(--glass-border);
+            text-align: center;
+        }
+
+        .footer-logo {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            display: block;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .footer-links a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover { color: #fff; }
+
+        .copyright {
+            color: #475569;
+            font-size: 13px;
+        }
+
+        /* Smooth Scroll */
+        html { scroll-behavior: smooth; }
+
+        @media (max-width: 640px) {
+            .container { margin-top: 100px; }
+            .glass-card { padding: 30px 20px; }
+            h1 { font-size: 32px; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-glow"></div>
+    <div class="glow-sphere"></div>
+
+    <nav>
+        <a href="/" class="logo">Riser<span>GPT</span></a>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/contact.html">Support</a>
+            <a href="/terms.html">Terms</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="glass-card">
+            <h1>Privacy Policy</h1>
+            <span class="update-date">Last Updated: May 17, 2026</span>
+
+            <section>
+                <h2>1. Introduction</h2>
+                <p>Welcome to RiserGPT. We are committed to protecting your personal information and your right to privacy. This policy explains how we handle your data when you use our AI platform and authentication services.</p>
+            </section>
+
+            <section>
+                <h2>2. Data We Collect</h2>
+                <p>To provide a seamless AI experience, we collect the following information:</p>
+                <ul>
+                    <li><strong>Account Data:</strong> Email address, name, and profile information provided via Google OAuth or email registration.</li>
+                    <li><strong>Interaction Data:</strong> The prompts and inputs you provide to the AI for processing and response generation.</li>
+                    <li><strong>Authentication Artifacts:</strong> OTP codes, session tokens, and security alert logs.</li>
+                    <li><strong>Device Data:</strong> IP addresses, browser types, and operating system information for security and optimization.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>3. How We Use Data</h2>
+                <p>Your data is used strictly for the following purposes:</p>
+                <ul>
+                    <li>Providing AI-driven chat and analysis services.</li>
+                    <li>Ensuring account security through multi-factor authentication (OTP).</li>
+                    <li>Improving the quality and accuracy of our AI models.</li>
+                    <li>Sending critical security alerts and password reset notifications.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>4. Data Security</h2>
+                <p>RiserGPT employs enterprise-grade encryption and security protocols (AES-256) to protect your data. All interactions are transmitted over secure TLS channels. We do not sell your personal data to third parties.</p>
+            </section>
+
+            <section>
+                <h2>5. Cookies & Tracking</h2>
+                <p>We use essential cookies to manage your login sessions and security preferences. We do not use intrusive tracking or third-party marketing cookies that compromise your privacy.</p>
+            </section>
+
+            <section>
+                <h2>6. Your Rights</h2>
+                <p>You have the right to access, export, or delete your RiserGPT account data at any time. Requests for data deletion can be initiated through your account settings or by contacting our security team.</p>
+            </section>
+
+            <section>
+                <h2>7. Contact Information</h2>
+                <p>If you have any questions about this Privacy Policy, please contact us at:</p>
+                <p><strong>Email:</strong> official@risergpt.qzz.io</p>
+            </section>
+        </div>
+    </div>
+
+    <footer>
+        <a href="/" class="footer-logo">Riser<span>GPT</span></a>
+        <div class="footer-links">
+            <a href="/privacy-policy.html">Privacy</a>
+            <a href="/terms.html">Terms</a>
+            <a href="/contact.html">Contact</a>
+        </div>
+        <p class="copyright">&copy; 2026 RiserGPT AI. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Custom interactive glow follows mouse slightly
+        document.addEventListener('mousemove', (e) => {
+            const glow = document.querySelector('.glow-sphere');
+            const x = e.clientX / window.innerWidth * 30;
+            const y = e.clientY / window.innerHeight * 30;
+            glow.style.transform = `translate(${x}%, ${y}%)`;
+        });
+    </script>
+</body>
+</html>

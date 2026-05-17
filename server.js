@@ -4,21 +4,31 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const admin = require('firebase-admin');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
+const { body, validationResult } = require('express-validator');
+const { validateEmail } = require('./server/verification/emailValidator');
+const { sendVerificationEmail, sendLoginAlertEmail } = require('./server/email/emailService');
+const otpRoutes = require('./server/auth/otpRoutes');
 
 const firebaseConfig = require('./firebase-applet-config.json');
 
 // Initialize Firebase Admin
-if (!admin.apps.length) {
-    admin.initializeApp({
-        projectId: firebaseConfig.projectId,
-    });
+try {
+    if (!admin.apps.length) {
+        admin.initializeApp({
+            projectId: firebaseConfig.projectId,
+        });
+    }
+} catch (e) {
+    console.error('Firebase Admin initialization error:', e.message);
 }
 
 const app = express();
@@ -59,19 +69,53 @@ app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net", "https://www.gstatic.com"],
+            scriptSrc: [
+                "'self'",
+                "'unsafe-inline'",
+                "'unsafe-eval'",
+                "https://cdnjs.cloudflare.com",
+                "https://cdn.jsdelivr.net",
+                "https://www.gstatic.com",
+                "https://apis.google.com",
+                "https://accounts.google.com",
+                "https://risergpt-fb614.firebaseapp.com"
+            ],
             styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com"],
             fontSrc: ["'self'", "https://fonts.gstatic.com"],
             imgSrc: ["'self'", "data:", "blob:", "https:"],
-            connectSrc: ["'self'", "https://api.tavily.com", "https://api.groq.com", "https://api.x.ai", "https://identitytoolkit.googleapis.com", "https://securetoken.googleapis.com"],
-            frameSrc: ["'none'"],
+            connectSrc: [
+                "'self'",
+                "https://api.tavily.com",
+                "https://api.groq.com",
+                "https://api.x.ai",
+                "https://identitytoolkit.googleapis.com",
+                "https://securetoken.googleapis.com",
+                "https://apis.google.com",
+                "https://accounts.google.com",
+                "https://www.googleapis.com",
+                "https://risergpt-fb614.firebaseapp.com",
+                "https://*.firebaseio.com",
+                "wss://*.firebaseio.com",
+                "https://www.gstatic.com"
+            ],
+            frameSrc: [
+                "'self'",
+                "https://accounts.google.com",
+                "https://apis.google.com",
+                "https://risergpt-fb614.firebaseapp.com"
+            ],
+            childSrc: ["'self'", "blob:", "https://risergpt-fb614.firebaseapp.com"],
+            workerSrc: ["'self'", "blob:"]
         },
     },
     crossOriginEmbedderPolicy: false,
+    crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" }
 }));
 
 app.use(cookieParser());
 app.use(express.json({ limit: '50mb' }));
+app.use(mongoSanitize());
+app.use(xss());
 
 // Rate Limiters
 const globalLimiter = rateLimit({
@@ -108,15 +152,13 @@ app.use(express.static(path.join(__dirname, 'public'), {
 // --- LOAD ROUTES ---
 const authRoutes = require('./server/auth/authRoutes');
 app.use('/api/auth', authRoutes);
+app.use('/api/auth/otp', otpRoutes);
 
 // --- SETUP DIRECTORIES ---
-const DATA_DIR = path.join(__dirname, 'riser_data');
-const CHATS_DIR = path.join(DATA_DIR, 'chats');
-const CONFIG_FILE = path.join(DATA_DIR, 'config.json');
-const USERS_FILE = path.join(DATA_DIR, 'users.json');
+const { DATA_DIR, CHATS_DIR, CONFIG_FILE, USERS_FILE } = require('./server/config/paths');
 
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
-if (!fs.existsSync(CHATS_DIR)) fs.mkdirSync(CHATS_DIR);
+if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+if (!fs.existsSync(CHATS_DIR)) fs.mkdirSync(CHATS_DIR, { recursive: true });
 if (!fs.existsSync(USERS_FILE)) fs.writeFileSync(USERS_FILE, JSON.stringify([], null, 2));
 
 function getUserChatDir(email) {
@@ -267,51 +309,112 @@ app.post('/api/config', authenticateToken, requireAdmin, (req, res) => {
 
 // --- USER MANAGEMENT ENDPOINTS ---
 
-app.post('/api/users/save', async (req, res) => {
+app.post('/api/users/save', [
+    body('email').isEmail().withMessage('Valid email is required').normalizeEmail(),
+    body('name').trim().isString().isLength({ min: 1, max: 100 }).withMessage('Name is required and must be under 100 characters'),
+    body('password').optional({ checkFalsy: true }).isString().isLength({ min: 6, max: 100 }).withMessage('Password must be between 6 and 100 characters'),
+    body('profileImage').optional({ checkFalsy: true }).isString().isLength({ max: 500 }),
+    body('authProvider').optional({ checkFalsy: true }).isString().isLength({ max: 50 })
+], async (req, res) => {
     try {
-        const userData = req.body;
-        let users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ error: errors.array()[0].msg });
+        }
+
+        const emailValidation = validateEmail(req.body.email);
+        if (!emailValidation.valid) {
+            return res.status(400).json({ error: emailValidation.error });
+        }
+
+        const email = req.body.email;
+        const safeData = {
+            name: req.body.name,
+            email: email,
+            password: req.body.password,
+            profileImage: req.body.profileImage || null,
+            authProvider: req.body.authProvider || 'local'
+        };
+
+        let users = [];
+        if (fs.existsSync(USERS_FILE)) {
+            users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+        }
         
-        const existingIndex = users.findIndex(u => u.email === userData.email);
+        const existingIndex = users.findIndex(u => u.email === email);
         
         let savedUser;
         if (existingIndex > -1) {
             // Update existing
-            const updateData = { ...userData };
-            if (updateData.password && updateData.password !== users[existingIndex].password) {
+            if (safeData.password) {
                 // If password was provided and differs, hash it
-                updateData.password = await bcrypt.hash(updateData.password, 10);
+                safeData.password = await bcrypt.hash(safeData.password, 10);
             } else {
                 // otherwise keep existing password
-                delete updateData.password; 
+                safeData.password = users[existingIndex].password;
             }
-            users[existingIndex] = { ...users[existingIndex], ...updateData };
+            
+            // Explicitly only update allowed fields
+            users[existingIndex].name = safeData.name;
+            users[existingIndex].password = safeData.password;
+            if (safeData.profileImage) users[existingIndex].profileImage = safeData.profileImage;
+            if (safeData.authProvider) users[existingIndex].authProvider = safeData.authProvider;
+            
             savedUser = users[existingIndex];
         } else {
             // New User
-            if (!userData.password) return res.status(400).json({ error: 'Password required' });
-            userData.password = await bcrypt.hash(userData.password, 10);
+            if (!req.body.password) return res.status(400).json({ error: 'Password required' });
+            safeData.password = await bcrypt.hash(safeData.password, 10);
             
             const newUser = {
                 id: Date.now().toString(),
+                email: safeData.email,
+                name: safeData.name,
+                password: safeData.password,
+                profileImage: safeData.profileImage,
+                authProvider: safeData.authProvider,
                 isBanned: false,
+                verified: false,
+                role: 'user', // explicitly hardcode role to prevent injection
                 plan: "Muft Plan",
                 planStatus: "active",
                 planExpiry: "never",
                 daysRemaining: "unlimited",
-                ...userData,
-                createdAt: new Date().toISOString()
+                createdAt: new Date().toISOString(),
+                securityLogs: [],
+                trustedDevices: [],
+                mfaEnabled: false,
+                lastLogin: null,
+                otpCreatedAt: null
             };
             users.push(newUser);
             savedUser = newUser;
         }
         
+        // Ensure user is verified before issuing token
+        if (!savedUser.verified) {
+            const now = Date.now();
+            if (!savedUser.lastVerificationAttempt || (now - savedUser.lastVerificationAttempt) > 60000) {
+                const otp = Math.floor(100000 + Math.random() * 900000).toString();
+                savedUser.otpHash = await bcrypt.hash(otp, 10);
+                savedUser.otpCreatedAt = now;
+                savedUser.lastVerificationAttempt = now;
+                savedUser.verificationPending = true;
+                await sendVerificationEmail(savedUser.email, otp);
+            }
+            fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+            return res.json({ success: true, requiresVerification: true, message: 'Please verify your email.' });
+        }
+
         fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
         
+        const userForClient = { ...savedUser };
+        delete userForClient.password;
+        
         const token = jwt.sign({ email: savedUser.email, role: 'user' }, JWT_SECRET);
-        res.json({ success: true, token });
+        res.json({ success: true, token, user: userForClient });
     } catch (error) {
-        console.error('Save User Error');
+        console.error('Save User Error:', error);
         res.status(500).json({ error: 'Service temporarily unavailable' });
     }
 });
@@ -345,8 +448,30 @@ app.post('/api/users/login', async (req, res) => {
         if (passwordMatches) {
             if (user.isBanned) return res.status(403).json({ error: 'This account is banned.' });
             
+            if (!user.verified) {
+                const now = Date.now();
+                if (!user.lastVerificationAttempt || (now - user.lastVerificationAttempt) > 60000) {
+                    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+                    user.otpHash = await bcrypt.hash(otp, 10);
+                    user.otpCreatedAt = now;
+                    user.lastVerificationAttempt = now;
+                    user.verificationPending = true;
+                    await sendVerificationEmail(user.email, otp);
+                    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+                }
+                return res.status(403).json({ error: 'Please verify your email address.', requiresVerification: true });
+            }
+            
+            user.lastLogin = new Date().toISOString();
+            fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+
+            // Send login alert asynchronously
+            sendLoginAlertEmail(user.email, user.name).catch(err => console.error('Error sending login alert', err));
+
+            const userForClient = { ...user };
+            delete userForClient.password;
             const token = jwt.sign({ email: user.email, role: 'user' }, JWT_SECRET);
-            res.json({ success: true, user, token });
+            res.json({ success: true, user: userForClient, token });
         } else {
             res.status(401).json({ error: 'Invalid email or password' });
         }

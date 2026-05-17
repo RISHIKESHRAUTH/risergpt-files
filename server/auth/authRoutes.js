@@ -5,8 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const { validateEmail } = require('../verification/emailValidator');
 const { generateTokens, setCookieTokens, clearCookieTokens } = require('../sessions/sessionManager');
-
-const USERS_FILE = path.join(__dirname, '../../riser_data/users.json');
+const { USERS_FILE } = require('../config/paths');
 
 router.post('/sync', async (req, res) => {
     try {
@@ -63,7 +62,11 @@ router.post('/sync', async (req, res) => {
                 daysRemaining: "unlimited",
                 isBanned: false,
                 createdAt: timestamp,
-                lastLogin: timestamp
+                lastLogin: timestamp,
+                securityLogs: [],
+                trustedDevices: [],
+                mfaEnabled: false,
+                otpCreatedAt: null
             };
             users.push(syncedUser);
         }

@@ -775,6 +775,128 @@
             pointer-events: none;
             transition: opacity 0.5s ease;
         }
+        .google-btn {
+            background: white !important;
+            color: #374151 !important;
+            border: 1px solid #d1d5db !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 12px !important;
+            font-weight: 500 !important;
+            transition: all 0.2s ease !important;
+            margin-bottom: 1.5rem !important;
+            height: 48px !important;
+            border-radius: 8px !important;
+            width: 100% !important;
+            outline: none !important;
+        }
+        .google-btn:hover {
+            background: #f9fafb !important;
+            border-color: #9ca3af !important;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+        }
+        .google-btn:active {
+            background: #f3f4f6 !important;
+            transform: translateY(1px) !important;
+        }
+        .google-btn svg {
+            flex-shrink: 0 !important;
+        }
+
+        /* --- AUTH SYSTEM STYLES --- */
+        #auth-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000000;
+            background: #060816;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #fff;
+            display: none;
+        }
+        #auth-screen.active { display: flex; }
+        .auth-container {
+            width: 100%;
+            max-width: 440px;
+            padding: 2.5rem;
+            background: rgba(17, 25, 54, 0.8);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 215, 120, 0.1);
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .auth-logo { width: 64px; height: 64px; margin-bottom: 1.5rem; }
+        h1#auth-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem; }
+        p#auth-subtitle { color: #94a3b8; margin-bottom: 2rem; font-size: 0.95rem; }
+        .auth-form { text-align: left; }
+        .input-group { margin-bottom: 1.5rem; }
+        .input-group label { display: block; margin-bottom: 0.6rem; color: #ccd6f6; font-size: 0.9rem; font-weight: 500; }
+        .input-group input { 
+            width: 100%; 
+            padding: 12px 16px; 
+            background: rgba(0, 0, 0, 0.3); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 12px; 
+            color: #fff; 
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+        .input-group input:focus {
+            border-color: #3b82f6;
+            background: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+        }
+        .auth-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+        }
+        .auth-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .auth-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            display: none;
+        }
+        .toggle-auth { margin-top: 2rem; color: #94a3b8; font-size: 0.9rem; }
+        .toggle-auth a { color: #60a5fa; cursor: pointer; text-decoration: none; font-weight: 600; }
+        .toggle-auth a:hover { text-decoration: underline; }
+        .btn-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body class="theme-blue-dark">
@@ -860,9 +982,17 @@
             </div>
         </section>
 
-        <footer class="landing-footer">
-            <div class="footer-left">&copy; 2026 RiserGPT &middot; Advanced Intelligence Platform</div>
-            <div class="footer-right">⚠️ RiserGPT can make mistakes, so double-check important information.</div>
+        <footer class="legal-footer">
+            <div class="footer-content">
+                <div class="footer-brand">Riser<span>GPT</span></div>
+                <div class="footer-links">
+                    <a href="/privacy-policy.html">Privacy Policy</a>
+                    <a href="/terms.html">Terms of Service</a>
+                    <a href="/contact.html">Contact Us</a>
+                </div>
+                <div class="footer-copyright">&copy; 2026 RiserGPT &middot; Advanced Intelligence Platform</div>
+                <div style="color: #475569; font-size: 0.7rem; margin-top: 0.5rem; opacity: 0.5;">⚠️ RiserGPT can make mistakes, so double-check important information.</div>
+            </div>
         </footer>
     </div>
 
@@ -881,6 +1011,17 @@
             
             <div id="auth-error-message" class="auth-error"></div>
 
+            <!-- Google Auth -->
+            <button type="button" id="google-signin-btn" class="auth-btn google-btn">
+                <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+                <span class="btn-text">Continue with Google</span>
+            </button>
+            <div class="auth-separator" style="display: flex; align-items: center; margin-bottom: 1rem; color: #888;">
+                <div style="flex: 1; border-bottom: 1px solid #444;"></div>
+                <span style="padding: 0 10px; font-size: 0.9em;">OR</span>
+                <div style="flex: 1; border-bottom: 1px solid #444;"></div>
+            </div>
+
             <!-- Sign In Form -->
             <form id="login-form" class="auth-form">
                 <div class="input-group">
@@ -890,6 +1031,9 @@
                 <div class="input-group">
                     <label for="login-password">Password</label>
                     <input type="password" id="login-password" required>
+                    <div style="text-align: right; margin-top: 5px;">
+                        <a href="#" id="forgot-password-link" style="color: #3b82f6; font-size: 0.85em; text-decoration: none;">Forgot password?</a>
+                    </div>
                 </div>
                 <button type="submit" class="auth-btn">
                     <span class="btn-text">Sign In</span>
@@ -925,6 +1069,71 @@
                 <span id="toggle-to-signup">Don't have an account? <a>Sign Up</a></span>
                 <span id="toggle-to-login" class="hidden">Already have an account? <a>Sign In</a></span>
             </p>
+
+            <!-- OTP Verification Form -->
+            <form id="otp-form" class="auth-form hidden">
+                <p style="color: #a1a1aa; font-size: 0.9em; margin-bottom: 1.5rem; text-align: center;">Enter the 6-digit code sent to <br><strong id="otp-email-display">user@example.com</strong></p>
+                <div class="input-group">
+                    <label for="otp-code">Verification Code</label>
+                    <input type="text" id="otp-code" placeholder="123456" maxlength="6" style="text-align: center; letter-spacing: 8px; font-size: 1.5em; font-family: monospace;" required>
+                </div>
+                <button type="submit" class="auth-btn">
+                    <span class="btn-text">Verify Email</span>
+                    <span class="btn-spinner hidden"></span>
+                </button>
+                <div style="text-align: center; margin-top: 1rem;">
+                    <button type="button" id="resend-otp-btn" style="background: none; border: none; color: #3b82f6; cursor: pointer; font-size: 0.9em;">Resend Code</button>
+                </div>
+                <p class="toggle-auth" style="margin-top: 1.5rem;">
+                    <a id="back-to-login-from-otp" style="color: #888; font-size: 0.9em; text-decoration: none; cursor: pointer;">Back to Login</a>
+                </p>
+            </form>
+
+            <!-- Forgot Password Form -->
+            <form id="forgot-password-form" class="auth-form hidden">
+                <div id="reset-step-1">
+                    <p style="color: #a1a1aa; font-size: 0.9em; margin-bottom: 1.5rem; text-align: center;">Enter your email to receive a password reset code.</p>
+                    <div class="input-group">
+                        <label for="reset-email">Email Address</label>
+                        <input type="email" id="reset-email" required>
+                    </div>
+                    <button type="button" id="send-reset-code-btn" class="auth-btn">
+                        <span class="btn-text">Send Reset Code</span>
+                        <span class="btn-spinner hidden"></span>
+                    </button>
+                </div>
+                <div id="reset-step-2" class="hidden">
+                    <p style="color: #a1a1aa; font-size: 0.9em; margin-bottom: 1.5rem; text-align: center;">Enter the code and your new password.</p>
+                    <div class="input-group">
+                        <label for="reset-otp-code">Reset Code</label>
+                        <input type="text" id="reset-otp-code" maxlength="6" placeholder="123456" style="text-align: center; letter-spacing: 8px; font-size: 1.5em; font-family: monospace;" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="reset-new-password">New Password</label>
+                        <input type="password" id="reset-new-password" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="reset-confirm-password">Confirm New Password</label>
+                        <input type="password" id="reset-confirm-password" required>
+                    </div>
+                    <button type="submit" class="auth-btn">
+                        <span class="btn-text">Reset Password</span>
+                        <span class="btn-spinner hidden"></span>
+                    </button>
+                </div>
+                <p class="toggle-auth" style="margin-top: 1.5rem;">
+                    <a id="back-to-login-from-forgot" style="color: #888; font-size: 0.9em; text-decoration: none; cursor: pointer;">Back to Login</a>
+                </p>
+            </form>
+
+            <div class="auth-footer" style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #27272a; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                <div style="display: flex; gap: 15px; font-size: 0.75rem;">
+                    <a href="/privacy-policy.html" style="color: #71717a; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='#71717a'">Privacy Policy</a>
+                    <a href="/terms.html" style="color: #71717a; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='#71717a'">Terms</a>
+                    <a href="/contact.html" style="color: #71717a; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='#71717a'">Contact</a>
+                </div>
+                <div style="color: #3f3f46; font-size: 0.7rem;">&copy; 2026 RiserGPT AI</div>
+            </div>
         </div>
     </div>
 
@@ -1374,7 +1583,7 @@
                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M21.593 7.278C21.35 6.342 20.658 5.65 19.722 5.407C18.006 5 12 5 12 5S5.994 5 4.278 5.407C3.342 5.65 2.65 6.342 2.407 7.278C2 8.994 2 12 2 12S2 15.006 2.407 16.722C2.65 17.658 3.342 18.35 4.278 18.593C5.994 19 12 19 12 19S18.006 19 19.722 18.593C20.658 18.35 21.35 17.658 21.593 16.722C22 15.006 22 12 22 12S22 8.994 21.593 7.278ZM10 15V9L15 12L10 15Z"></path></svg>
                             <span>Watch on YouTube</span>
                         </a>
-                         <a href="https://github.com/RISHIKESHRAUTH/RiserGPT/releases/download/risergpt-v6/RiserGPT.apk" target="_blank" rel="noopener noreferrer" class="welcome-link">
+                         <a href="https://github.com/RISHIKESHRAUTH/RiserGPT/releases" target="_blank" rel="noopener noreferrer" class="welcome-link">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14H11v-4H8l4-4 4 4h-3v4z"></path></svg>
                             <span>Download App</span>
                         </a>
@@ -1474,7 +1683,140 @@
         </div>
     </div>
 
+    <!-- OTP Verification Modal -->
+    <div id="otp-modal" class="modal-overlay hidden" style="z-index: 2000;">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <h3>Verify Your Email</h3>
+            <p style="margin-bottom: 20px; color: #a1a1aa; font-size: 0.9em;">We've sent a 6-digit code to your email.</p>
+            <div class="auth-error" id="otp-error-message" style="display: none; margin-bottom: 10px;"></div>
+            <form id="otp-form" class="auth-form">
+                <div class="input-group">
+                    <input type="text" id="otp-input" placeholder="Enter 6-digit code" maxlength="6" style="text-align: center; letter-spacing: 5px; font-size: 1.5em; font-weight: bold;" required>
+                </div>
+                <button type="submit" class="auth-btn">
+                    <span class="btn-text">Verify Code</span>
+                    <span class="btn-spinner hidden"></span>
+                </button>
+            </form>
+            <button id="resend-otp-btn" style="margin-top: 15px; background: none; border: none; color: #3b82f6; cursor: pointer; text-decoration: underline;">Resend Code</button>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgot-password-modal" class="modal-overlay hidden" style="z-index: 2000;">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <h3>Reset Password</h3>
+            <div class="auth-error" id="forgot-pwd-error-message" style="display: none; margin-bottom: 10px;"></div>
+            
+            <form id="forgot-pwd-email-form" class="auth-form">
+                <p style="margin-bottom: 20px; color: #a1a1aa; font-size: 0.9em;">Enter your email to receive a reset code.</p>
+                <div class="input-group">
+                    <input type="email" id="forgot-pwd-email" placeholder="Your @gmail.com address" required>
+                </div>
+                <button type="submit" class="auth-btn">
+                    <span class="btn-text">Send Reset Code</span>
+                    <span class="btn-spinner hidden"></span>
+                </button>
+                <button type="button" class="cancel-btn forgot-cancel-btn" style="width: 100%; margin-top: 10px;">Cancel</button>
+            </form>
+
+            <form id="forgot-pwd-reset-form" class="auth-form hidden">
+                <p style="margin-bottom: 20px; color: #a1a1aa; font-size: 0.9em;">Enter the 6-digit code and your new password.</p>
+                <div class="input-group">
+                    <input type="text" id="forgot-pwd-otp" placeholder="6-digit code" maxlength="6" style="text-align: center; letter-spacing: 5px; font-weight: bold;" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="forgot-pwd-new-password" placeholder="New Password (min 6 chars)" required>
+                </div>
+                <button type="submit" class="auth-btn">
+                    <span class="btn-text">Update Password</span>
+                    <span class="btn-spinner hidden"></span>
+                </button>
+                <button type="button" class="cancel-btn forgot-cancel-btn" style="width: 100%; margin-top: 10px;">Cancel</button>
+            </form>
+        </div>
+    </div>
+
 <script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+
+        import {
+            getAuth,
+            GoogleAuthProvider,
+            signInWithPopup,
+            getRedirectResult,
+            setPersistence,
+            browserLocalPersistence,
+            onAuthStateChanged,
+            signOut
+        } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBrbbG2M-WovzNF_24zDHGQwli-vfVCNoE",
+            authDomain: "risergpt-fb614.firebaseapp.com",
+            projectId: "risergpt-fb614",
+            storageBucket: "risergpt-fb614.firebasestorage.app",
+            messagingSenderId: "726838337779",
+            appId: "1:726838337779:web:c95413461d24ddbb9d9786"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        const isMobileDevice = () => /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|wv/i.test(navigator.userAgent);
+        
+        // Wait for redirect result
+        getRedirectResult(auth).then(async (result) => {
+            if (result) {
+                try {
+                    const idToken = await result.user.getIdToken();
+                    const response = await fetch('/api/auth/sync', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ idToken, provider: 'google' })
+                    });
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.error || 'Authentication failed');
+                    
+                    const userForSession = data.user;
+                    delete userForSession.password;
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('risergpt_currentUser', JSON.stringify(userForSession));
+                    localStorage.removeItem('risergpt_guestData');
+                    window.location.reload();
+                } catch(e) {
+                    console.error("Redirect auth error:", e);
+                }
+            }
+        }).catch(err => console.error(err));
+
+        // Background session restore if missing local token but Firebase is logged in
+        onAuthStateChanged(auth, async (user) => {
+            if (user && !localStorage.getItem('authToken')) {
+                try {
+                    const idToken = await user.getIdToken();
+                    const response = await fetch('/api/auth/sync', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ idToken, provider: 'google' })
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        const userForSession = data.user;
+                        delete userForSession.password;
+                        localStorage.setItem('authToken', data.token);
+                        localStorage.setItem('risergpt_currentUser', JSON.stringify(userForSession));
+                        localStorage.removeItem('risergpt_guestData');
+                        window.location.reload();
+                    }
+                } catch(e) {
+                    console.error("Auth restore error:", e);
+                }
+            }
+        });
+
         // --- SECURITY INJECTION: JWT Fetch Interceptor ---
         const originalFetch = window.fetch;
         window.fetch = async function(...args) {
@@ -1507,14 +1849,160 @@
         // Disable drag and drop of elements
         document.addEventListener('dragstart', e => e.preventDefault());
 
-document.addEventListener('DOMContentLoaded', () => {
-    // --- LANDING PAGE LOGIC ---
+const _initAppElements = () => {
+    // Variables declared once at the top level of _initAppElements
+    let pendingVerificationEmail = null;
+    let resetEmail = null;
+    const otpModal = document.getElementById('otp-modal');
+    const otpForm = document.getElementById('otp-form');
+    const otpErrorMessage = document.getElementById('otp-error-message');
+    const resendOtpBtn = document.getElementById('resend-otp-btn');
+    const forgotPwdModal = document.getElementById('forgot-password-modal');
+    const forgotPwdEmailForm = document.getElementById('forgot-pwd-email-form');
+    const forgotPwdResetForm = document.getElementById('forgot-pwd-reset-form');
+    const forgotPwdErrorMessage = document.getElementById('forgot-pwd-error-message');
+    const forgotPasswordForm = document.getElementById('forgot-password-form');
+    const forgotPasswordLink = document.getElementById('forgot-password-link');
     const landingPage = document.getElementById('premium-landing-page');
     const getStartedBtns = document.querySelectorAll('.landing-btn-get-started, .landing-btn-primary');
+    const authScreen = document.getElementById('auth-screen');
+    const loginForm = document.getElementById('login-form');
+    const signupForm = document.getElementById('signup-form');
+    const adminLoginScreen = document.getElementById('admin-login-screen');
+    const adminPanel = document.getElementById('admin-panel');
+    const appContainer = document.getElementById('app-container');
     
-    if (landingPage) {
-        let cleanupParticles = null;
+    function showOtpModal(email) {
+        pendingVerificationEmail = email;
+        otpModal.classList.remove('hidden');
+        otpErrorMessage.style.display = 'none';
+        document.getElementById('otp-input').value = '';
+        authScreen.classList.add('hidden'); // hide login screen if open
+    }
 
+    otpForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const otp = document.getElementById('otp-input').value.trim();
+        if (!otp || otp.length !== 6) return;
+
+        setButtonLoading(otpForm, true);
+        try {
+            const resp = await fetch('/api/auth/otp/verify-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: pendingVerificationEmail, otp })
+            });
+            const data = await resp.json();
+            if (!resp.ok) throw new Error(data.error || 'Verification failed');
+            
+            otpModal.classList.add('hidden');
+            // Re-attempt login automatically or show success message to login
+            alert('Email verified successfully! Please sign in again.');
+            authScreen.classList.remove('hidden');
+            toggleForms(false); // switch to login form
+        } catch (err) {
+            otpErrorMessage.textContent = err.message;
+            otpErrorMessage.style.display = 'block';
+        } finally {
+            setButtonLoading(otpForm, false);
+        }
+    });
+
+    resendOtpBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        if (!pendingVerificationEmail) return;
+        
+        try {
+            const resp = await fetch('/api/auth/otp/send-verification', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: pendingVerificationEmail })
+            });
+            const data = await resp.json();
+            if (!resp.ok) throw new Error(data.error || 'Failed to resend OTP');
+            alert('Verification code resent! Please check your inbox.');
+        } catch (err) {
+            otpErrorMessage.textContent = err.message;
+            otpErrorMessage.style.display = 'block';
+        }
+    });
+
+    // console.log("OTP/Forgot logic initialized");
+
+    forgotPasswordLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        authScreen.classList.add('hidden');
+        forgotPwdModal.classList.remove('hidden');
+        forgotPwdEmailForm.classList.remove('hidden');
+        forgotPwdResetForm.classList.add('hidden');
+        forgotPwdErrorMessage.style.display = 'none';
+        document.getElementById('forgot-pwd-email').value = '';
+    });
+
+    document.querySelectorAll('.forgot-cancel-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            forgotPwdModal.classList.add('hidden');
+            authScreen.classList.remove('hidden');
+            toggleForms(false);
+        });
+    });
+
+    forgotPwdEmailForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('forgot-pwd-email').value.trim().toLowerCase();
+        if(!email) return;
+
+        setButtonLoading(forgotPwdEmailForm, true);
+        try {
+            const resp = await fetch('/api/auth/otp/forgot-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            const data = await resp.json();
+            if (!resp.ok) throw new Error(data.error || 'Failed to send reset code');
+            
+            resetEmail = email;
+            forgotPwdEmailForm.classList.add('hidden');
+            forgotPwdResetForm.classList.remove('hidden');
+            forgotPwdErrorMessage.style.display = 'none';
+        } catch (err) {
+            forgotPwdErrorMessage.textContent = err.message;
+            forgotPwdErrorMessage.style.display = 'block';
+        } finally {
+            setButtonLoading(forgotPwdEmailForm, false);
+        }
+    });
+
+    forgotPwdResetForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const otp = document.getElementById('forgot-pwd-otp').value.trim();
+        const newPassword = document.getElementById('forgot-pwd-new-password').value;
+        if (!otp || !newPassword) return;
+
+        setButtonLoading(forgotPwdResetForm, true);
+        try {
+            const resp = await fetch('/api/auth/otp/reset-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: resetEmail, otp, newPassword })
+            });
+            const data = await resp.json();
+            if (!resp.ok) throw new Error(data.error || 'Password reset failed');
+            
+            forgotPwdModal.classList.add('hidden');
+            alert('Password reset successfully! Please sign in with your new password.');
+            authScreen.classList.remove('hidden');
+            toggleForms(false);
+        } catch (err) {
+            forgotPwdErrorMessage.textContent = err.message;
+            forgotPwdErrorMessage.style.display = 'block';
+        } finally {
+            setButtonLoading(forgotPwdResetForm, false);
+        }
+    });
+    let cleanupParticles = null;
+    if (landingPage) {
         // Feature: Particles Background
         const canvas = document.getElementById('landing-particles');
         if (canvas) {
@@ -1589,13 +2077,32 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             getStartedBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
+                    console.log("Get Started button clicked successfully");
                     landingPage.classList.add('hide');
+
                     sessionStorage.setItem('risergpt_landing_seen', 'true');
+
                     setTimeout(() => {
+
                         landingPage.style.display = 'none';
+
                         if (cleanupParticles) cleanupParticles();
+
+                        // OPEN AUTH SCREEN
+                        const authScreen = document.getElementById('auth-screen');
+
+                        if (authScreen) {
+
+                            authScreen.style.display = 'flex';
+
+                            authScreen.classList.add('active');
+
+                        }
+
                     }, 500);
+
                 });
+
             });
             
             // Smooth scroll for nav links within the landing page
@@ -1614,14 +2121,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- AUTHENTICATION & ADMIN ELEMENTS ---
-    const authScreen = document.getElementById('auth-screen');
-    const adminLoginScreen = document.getElementById('admin-login-screen');
-    const adminPanel = document.getElementById('admin-panel');
-    const appContainer = document.getElementById('app-container');
-    
     // User Auth
-    const loginForm = document.getElementById('login-form');
-    const signupForm = document.getElementById('signup-form');
     const toggleToSignup = document.getElementById('toggle-to-signup');
     const toggleToLogin = document.getElementById('toggle-to-login');
     const authTitle = document.getElementById('auth-title');
@@ -1630,6 +2130,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const logoutBtn = document.getElementById('logout-btn');
     const loginSignupBtn = document.getElementById('login-signup-btn');
     const welcomeLoginBtn = document.getElementById('welcome-login-btn');
+
+    // OTP & Forgot Password
+    const otpEmailDisplay = document.getElementById('otp-email-display');
+    const backToLoginFromOtp = document.getElementById('back-to-login-from-otp');
+    const backToLoginFromForgot = document.getElementById('back-to-login-from-forgot');
+    const sendResetCodeBtn = document.getElementById('send-reset-code-btn');
+    const resetStep1 = document.getElementById('reset-step-1');
+    const resetStep2 = document.getElementById('reset-step-2');
 
 
     // Admin Auth & Panel
@@ -1898,7 +2406,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- ROUTING & INITIALIZATION ---
-    async function initializeApp() {
+    async function initializeMainApp() {
         await loadGlobalConfig();
 
         if (window.location.hash === '#admin') {
@@ -1998,10 +2506,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(userData)
                 });
-                return await response.json();
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to save user data to server.');
+                }
+                return data;
             } catch (error) {
                 console.error("Save User Error:", error);
-                throw new Error('Failed to save user data to server.');
+                throw error;
             }
         }
 
@@ -2012,11 +2524,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
                 });
+                const data = await response.json();
                 if (!response.ok) {
-                    const err = await response.json();
-                    throw new Error(err.error || 'Login failed');
+                    const err = new Error(data.error || 'Login failed');
+                    if (data.requiresVerification) err.requiresVerification = true;
+                    throw err;
                 }
-                return await response.json();
+                return data;
             } catch (error) {
                 throw error;
             }
@@ -2080,10 +2594,51 @@ document.addEventListener('DOMContentLoaded', () => {
         setAuthError('');
         loginForm.classList.toggle('hidden', showSignup);
         signupForm.classList.toggle('hidden', !showSignup);
+        otpForm.classList.add('hidden');
+        forgotPasswordForm.classList.add('hidden');
+        googleBtn.classList.remove('hidden');
+        document.querySelector('.auth-separator').classList.remove('hidden');
+        
         toggleToSignup.classList.toggle('hidden', showSignup);
         toggleToLogin.classList.toggle('hidden', !showSignup);
         authTitle.textContent = showSignup ? 'Create Account' : 'Welcome Back';
         authSubtitle.textContent = showSignup ? 'Get started with RiserGPT' : 'Sign in to continue to RiserGPT';
+        
+        const googleBtnText = googleBtn.querySelector('.btn-text');
+        if (googleBtnText) {
+            googleBtnText.textContent = showSignup ? 'Sign up with Google' : 'Continue with Google';
+        }
+    }
+
+    function showOtpModal(email) {
+        setAuthError('');
+        loginForm.classList.add('hidden');
+        signupForm.classList.add('hidden');
+        googleBtn.classList.add('hidden');
+        document.querySelector('.auth-separator').classList.add('hidden');
+        toggleToSignup.classList.add('hidden');
+        toggleToLogin.classList.add('hidden');
+        
+        otpForm.classList.remove('hidden');
+        otpEmailDisplay.textContent = email;
+        authTitle.textContent = 'Verify Email';
+        authSubtitle.textContent = 'Check your inbox for a 6-digit code';
+    }
+
+    function showForgotPassword() {
+        setAuthError('');
+        loginForm.classList.add('hidden');
+        signupForm.classList.add('hidden');
+        googleBtn.classList.add('hidden');
+        document.querySelector('.auth-separator').classList.add('hidden');
+        toggleToSignup.classList.add('hidden');
+        toggleToLogin.classList.add('hidden');
+        
+        forgotPasswordForm.classList.remove('hidden');
+        resetStep1.classList.remove('hidden');
+        resetStep2.classList.add('hidden');
+        authTitle.textContent = 'Reset Password';
+        authSubtitle.textContent = 'Recover your account access';
     }
 
         async function handleSignup(e) {
@@ -2104,6 +2659,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await saveUsersToServer({ name, email, password });
                 
                 if (result.success) {
+                    if (result.requiresVerification) {
+                        showOtpModal(email);
+                        return;
+                    }
                     // Login automatically after signup
                     const loginRes = await loginUserOnServer(email, password);
                     const userForSession = loginRes.user;
@@ -2143,17 +2702,240 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.location.reload();
                 }
             } catch(error) {
-                setAuthError(error.message);
+                if (error.requiresVerification) {
+                    showOtpModal(email);
+                } else {
+                    setAuthError(error.message);
+                }
             } finally {
                 setButtonLoading(loginForm, false);
             }
         }
 
-    function handleLogout() {
+        // --- NEW AUTH HANDLERS ---
+        
+        if (forgotPasswordLink) {
+            forgotPasswordLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                showForgotPassword();
+            });
+        }
+
+        if (backToLoginFromOtp) {
+            backToLoginFromOtp.addEventListener('click', () => toggleForms(false));
+        }
+
+        if (backToLoginFromForgot) {
+            backToLoginFromForgot.addEventListener('click', () => toggleForms(false));
+        }
+
+        if (resendOtpBtn) {
+            resendOtpBtn.addEventListener('click', async () => {
+                const email = otpEmailDisplay.textContent;
+                resendOtpBtn.disabled = true;
+                const originalText = resendOtpBtn.textContent;
+                resendOtpBtn.textContent = 'Sending...';
+                try {
+                    const res = await fetch('/api/auth/otp/send-verification', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.error || 'Failed to resend OTP');
+                    alert('Verification code resent to your email.');
+                } catch (e) {
+                    setAuthError(e.message);
+                } finally {
+                    resendOtpBtn.textContent = originalText;
+                    resendOtpBtn.disabled = false;
+                }
+            });
+        }
+
+        if (otpForm) {
+            otpForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                setAuthError('');
+                setButtonLoading(otpForm, true);
+                const email = otpEmailDisplay.textContent;
+                const otp = document.getElementById('otp-code').value.trim();
+
+                try {
+                    const res = await fetch('/api/auth/otp/verify-otp', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, otp })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.error || 'Verification failed');
+                    
+                    alert('Email verified! You can now log in.');
+                    toggleForms(false);
+                } catch (e) {
+                    setAuthError(e.message);
+                } finally {
+                    setButtonLoading(otpForm, false);
+                }
+            });
+        }
+
+        if (sendResetCodeBtn) {
+            sendResetCodeBtn.addEventListener('click', async () => {
+                const email = document.getElementById('reset-email').value.trim().toLowerCase();
+                if (!email) return setAuthError('Email is required.');
+                
+                setAuthError('');
+                const btnText = sendResetCodeBtn.querySelector('.btn-text');
+                const spinner = sendResetCodeBtn.querySelector('.btn-spinner');
+                sendResetCodeBtn.disabled = true;
+                btnText.classList.add('hidden');
+                spinner.classList.remove('hidden');
+
+                try {
+                    const res = await fetch('/api/auth/otp/forgot-password', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.error || 'Failed to send reset code');
+                    
+                    resetStep1.classList.add('hidden');
+                    resetStep2.classList.remove('hidden');
+                    authSubtitle.textContent = 'Code sent to your email';
+                } catch (e) {
+                    setAuthError(e.message);
+                } finally {
+                    sendResetCodeBtn.disabled = false;
+                    btnText.classList.remove('hidden');
+                    spinner.classList.add('hidden');
+                }
+            });
+        }
+
+        if (forgotPasswordForm) {
+            forgotPasswordForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                setAuthError('');
+                setButtonLoading(forgotPasswordForm, true);
+
+                const email = document.getElementById('reset-email').value.trim().toLowerCase();
+                const otp = document.getElementById('reset-otp-code').value.trim();
+                const newPassword = document.getElementById('reset-new-password').value;
+                const confirmPassword = document.getElementById('reset-confirm-password').value;
+
+                if (newPassword !== confirmPassword) {
+                    setButtonLoading(forgotPasswordForm, false);
+                    return setAuthError('Passwords do not match.');
+                }
+
+                try {
+                    const res = await fetch('/api/auth/otp/reset-password', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, otp, newPassword })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.error || 'Failed to reset password');
+                    
+                    alert('Password reset successfully! You can now log in.');
+                    toggleForms(false);
+                } catch (e) {
+                    setAuthError(e.message);
+                } finally {
+                    setButtonLoading(forgotPasswordForm, false);
+                }
+            });
+        }
+
+        // --- END NEW AUTH HANDLERS ---
+
+    async function handleLogout() {
+        try {
+            await signOut(auth);
+        } catch(e) {
+            console.error("Firebase logout error", e);
+        }
         localStorage.removeItem('authToken');
         localStorage.removeItem(CURRENT_USER_KEY);
         window.location.hash = '';
         window.location.reload();
+    }
+
+    const googleBtn = document.getElementById('google-signin-btn');
+
+    if (googleBtn) {
+
+        googleBtn.addEventListener('click', async () => {
+
+            const btnText = googleBtn.querySelector('.btn-text');
+
+            try {
+
+                setAuthError('');
+
+                btnText.textContent = 'Connecting...';
+                googleBtn.disabled = true;
+
+                const provider = new GoogleAuthProvider();
+
+                provider.setCustomParameters({
+                    prompt: 'select_account'
+                });
+
+                await setPersistence(auth, browserLocalPersistence);
+
+                const result = await signInWithPopup(auth, provider);
+
+                const idToken = await result.user.getIdToken();
+
+                const response = await fetch('/api/auth/sync', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        idToken,
+                        provider: 'google'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+
+                    localStorage.setItem('authToken', data.token);
+
+                    window.location.reload();
+
+                } else {
+
+                    setAuthError(data.error || 'Authentication failed');
+                }
+
+            } catch (error) {
+
+                console.error('Google sign-in error:', error);
+
+                if (error.code === 'auth/popup-closed-by-user') {
+                    setAuthError('The sign-in popup was closed before completion. If the window was blank, please wait a few seconds or check your connection.');
+                } else if (error.code === 'auth/cancelled-popup-request') {
+                    setAuthError('Multiple sign-in requests. Please close other popups and try again.');
+                } else if (error.code === 'auth/popup-blocked') {
+                    setAuthError('Sign-in popup was blocked by your browser. Please allow popups for this site.');
+                } else {
+                    setAuthError(error.message || 'Google Sign-In failed');
+                }
+
+            } finally {
+
+                const isSignup = !signupForm.classList.contains('hidden');
+                btnText.textContent = isSignup ? 'Sign up with Google' : 'Continue with Google';
+                googleBtn.disabled = false;
+            }
+        });
     }
 
     // --- ADMIN PANEL LOGIC ---
@@ -4613,9 +5395,15 @@ document.addEventListener('DOMContentLoaded', () => {
     } // End initChatApp
 
     // Start App
-    initializeApp();
+    initializeMainApp();
 
-}); // End DOMContentLoaded
+} // End _initAppElements
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', _initAppElements);
+} else {
+    _initAppElements();
+}
 </script>
 </body>
 </html>
