@@ -1003,72 +1003,101 @@
     </div>
 
     <!-- Regular User Authentication Screen -->
-    <div id="auth-screen">
+    <div id="auth-screen" class="auth-screen">
         <div class="auth-container">
-            <img src="logo.png" alt="RiserHost Logo" class="auth-logo">
-            <h1 id="auth-title">Welcome</h1>
-            <p id="auth-subtitle">Sign in to continue to RiserGPT</p>
+            <button id="auth-close-btn" class="auth-close-btn" style="position: absolute; top: 15px; right: 20px; background: none; border: none; color: #71717a; font-size: 24px; cursor: pointer; display: none;">&times;</button>
             
-            <div id="auth-error-message" class="auth-error"></div>
+            <div id="auth-initial-view">
+                <div class="auth-header">
+                    <div class="auth-logo">R</div>
+                    <h1 id="auth-main-title">Log in or sign up</h1>
+                    <p id="auth-main-subtitle">Join RiserGPT to unlock premium models and unlimited chat.</p>
+                </div>
+                
+                <div id="auth-choice-error" class="auth-error" style="display: none;"></div>
 
-            <!-- Google Auth -->
-            <button type="button" id="google-signin-btn" class="auth-btn google-btn">
-                <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-                <span class="btn-text">Continue with Google</span>
-            </button>
-            <div class="auth-separator" style="display: flex; align-items: center; margin-bottom: 1rem; color: #888;">
-                <div style="flex: 1; border-bottom: 1px solid #444;"></div>
-                <span style="padding: 0 10px; font-size: 0.9em;">OR</span>
-                <div style="flex: 1; border-bottom: 1px solid #444;"></div>
+                <div class="auth-options" style="display: flex; flex-direction: column; gap: 12px; margin-top: 20px;">
+                    <button type="button" id="google-signin-btn" class="auth-btn google-btn">
+                        <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+                        <span class="btn-text">Continue with Google</span>
+                    </button>
+                    
+                    <button type="button" id="continue-with-email-btn" class="auth-btn email-choice-btn" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        <span>Continue with Email</span>
+                    </button>
+                </div>
             </div>
 
-            <!-- Sign In Form -->
-            <form id="login-form" class="auth-form">
-                <div class="input-group">
-                    <label for="login-email">Email</label>
-                    <input type="email" id="login-email" required>
+            <div id="auth-email-flow" class="hidden">
+                <div class="auth-header">
+                    <h2 id="auth-title">Welcome</h2>
+                    <p id="auth-subtitle">Sign in to continue to RiserGPT</p>
                 </div>
-                <div class="input-group">
-                    <label for="login-password">Password</label>
-                    <input type="password" id="login-password" required>
-                    <div style="text-align: right; margin-top: 5px;">
-                        <a href="#" id="forgot-password-link" style="color: #3b82f6; font-size: 0.85em; text-decoration: none;">Forgot password?</a>
+
+                <div id="auth-error-message" class="auth-error" style="display: none;"></div>
+
+                <button class="google-btn auth-btn" id="google-signin-btn-email" style="margin-bottom: 20px;">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="18" height="18">
+                    <span class="btn-text">Continue with Google</span>
+                </button>
+
+                <div class="auth-separator" style="margin-bottom: 20px;">
+                    <span>OR</span>
+                </div>
+
+                <!-- Sign In Form -->
+                <form id="login-form" class="auth-form">
+                    <div class="input-group">
+                        <label for="login-email">Email</label>
+                        <input type="email" id="login-email" required>
                     </div>
-                </div>
-                <button type="submit" class="auth-btn">
-                    <span class="btn-text">Sign In</span>
-                    <span class="btn-spinner hidden"></span>
-                </button>
-            </form>
+                    <div class="input-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" required>
+                        <div style="text-align: right; margin-top: 5px;">
+                            <a href="#" id="forgot-password-link" style="color: #3b82f6; font-size: 0.85em; text-decoration: none;">Forgot password?</a>
+                        </div>
+                    </div>
+                    <button type="submit" class="auth-btn">
+                        <span class="btn-text">Sign In</span>
+                        <span class="btn-spinner hidden"></span>
+                    </button>
+                </form>
 
-            <!-- Sign Up Form -->
-            <form id="signup-form" class="auth-form hidden">
-                <div class="input-group">
-                    <label for="signup-name">Name</label>
-                    <input type="text" id="signup-name" required>
-                </div>
-                <div class="input-group">
-                    <label for="signup-email">Email</label>
-                    <input type="email" id="signup-email" required>
-                </div>
-                <div class="input-group">
-                    <label for="signup-password">Password</label>
-                    <input type="password" id="signup-password" required>
-                </div>
-                <div class="input-group">
-                    <label for="signup-confirm-password">Confirm Password</label>
-                    <input type="password" id="signup-confirm-password" required>
-                </div>
-                <button type="submit" class="auth-btn">
-                    <span class="btn-text">Create Account</span>
-                    <span class="btn-spinner hidden"></span>
-                </button>
-            </form>
+                <!-- Sign Up Form -->
+                <form id="signup-form" class="auth-form hidden">
+                    <div class="input-group">
+                        <label for="signup-name">Name</label>
+                        <input type="text" id="signup-name" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="signup-email">Email</label>
+                        <input type="email" id="signup-email" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="signup-password">Password</label>
+                        <input type="password" id="signup-password" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="signup-confirm-password">Confirm Password</label>
+                        <input type="password" id="signup-confirm-password" required>
+                    </div>
+                    <button type="submit" class="auth-btn">
+                        <span class="btn-text">Create Account</span>
+                        <span class="btn-spinner hidden"></span>
+                    </button>
+                </form>
 
-            <p class="toggle-auth">
-                <span id="toggle-to-signup">Don't have an account? <a>Sign Up</a></span>
-                <span id="toggle-to-login" class="hidden">Already have an account? <a>Sign In</a></span>
-            </p>
+                <p class="toggle-auth">
+                    <span id="toggle-to-signup">Don't have an account? <a>Sign Up</a></span>
+                    <span id="toggle-to-login" class="hidden">Already have an account? <a>Sign In</a></span>
+                </p>
+
+                <div style="text-align: center; margin-top: 15px;">
+                    <a href="#" id="back-to-auth-choices" style="color: #71717a; text-decoration: none; font-size: 0.85em;">&larr; Back to options</a>
+                </div>
+            </div>
 
             <!-- OTP Verification Form -->
             <form id="otp-form" class="auth-form hidden">
@@ -1593,22 +1622,24 @@
                         </a>
                     </div>
                     <div class="welcome-credits">
-                        <!-- Removed contact from here as per request to avoid redundancy -->
+                        <!-- Redundancy avoided -->
                     </div>
                 </div>
                 <div id="chat-container">
                     <div id="model-selector-container" class="hidden">
                          <button class="model-selector-btn selected" data-model="RH-6">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.5 14.5c0-.55.45-1 1-1s1 .45 1 1-.45 1-1 1-1-.45-1-1zm3-4.5c0 .55-.45 1-1 1s-1-.45-1-1v-2c0-.55.45-1 1-1s1 .45 1 1v2zm-4.5-1c.55 0 1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1v2c0 .55.45 1 1 1z"></path></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.5 14.5c0-.55.45-1 1-1s1 .45 1 1-.45 1-1 1-1-.45-1-1zm3-4.5c0 .55-.45 1-1 1s-1-.45-1-1v-2c0-.55.45-1 1-1s1 .45 1 1v2zm-4.5-1c.55 0 1-.45 1-1v-2c0-.55.45-1-1-1s-1 .45-1 1v2c0 .55.45 1 1 1z"></path></svg>
                             <span>RH-6</span>
                         </button>
                         <button class="model-selector-btn" data-model="RH-DEV-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M24 10.935v2.131c0 .213-.19.385-.427.385h-1.116c-.284 0-.521.19-.569.474l-.26 1.564c-.048.285.095.569.355.711l.995.521c.19.095.261.332.166.521l-1.066 1.848c-.095.19-.332.261-.521.166l-.995-.521c-.261-.142-.569 0-.711.261l-.782 1.351c-.142.261 0 .569.261.711l.995.521c.19.095.261.332.166.521l-1.066 1.848c-.095.19-.332.261-.521.166l-.995-.521c-.261-.142-.569 0-.711.261l-1.564.26c-.284.048-.474.285-.474.569v1.116c0 .237-.172.427-.385.427h-2.131c-.213 0-.385-.19-.385-.427v-1.116c0-.284-.19-.521-.474-.569l-1.564-.26c-.285-.048-.569.095-.711.355l-.521.995c-.095.19-.332.261-.521.166l-1.848-1.066c-.19-.095-.261-.332-.166-.521l.521-.995c.142-.261 0-.569-.261-.711l-1.351-.782c-.261-.142-.569 0-.711.261l-.521.995c-.095.19-.332.261-.521.166l-1.848-1.066c-.19-.095-.261-.332-.166-.521l.521-.995c.142-.261 0-.569-.261-.711l-.26-1.564c-.048-.284-.285-.474-.569-.474h-1.116c-.237 0-.427-.172-.427-.385v-2.131c0-.213.19-.385.427-.385h1.116c.284 0 .521-.19.569-.474l.26-1.564c.048-.285-.095-.569-.355-.711l-.995-.521c-.19-.095-.261-.332-.166-.521l1.066-1.848c.095-.19.332-.261.521-.166l.995.521c.261.142.569 0 .711-.261l.782-1.351c.142-.261 0-.569-.261-.711l-.995-.521c-.19-.095-.261-.332-.166-.521l1.066-1.848c.095-.19.332-.261.521-.166l.995.521c.261.142.569 0 .711-.261l1.564-.26c.284-.048.474-.285.474-.569v-1.116c0-.237.172-.427.385-.427h2.131c.213 0 .385.19.385.427v1.116c0 .284.19.521.474.569l1.564.26c.285.048.569-.095.711-.355l.521-.995c.095-.19.332-.261.521-.166l1.848 1.066c.19.095.261.332.166.521l-.521.995c-.142.261 0 .569.261.711l1.351.782c.261.142.569 0 .711-.261l.521-.995c.095-.19.332-.261.521-.166l1.848 1.066c.19.095.261.332.166.521l-.521.995c-.142.261 0 .569.261.711l.26 1.564c.048.284.285.474.569.474h1.116c.237 0 .427.172.427.385zm-12 5.565c-2.485 0-4.5-2.015-4.5-4.5s2.015-4.5 4.5-4.5 4.5 2.015 4.5 4.5-2.015 4.5-4.5 4.5z"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"></path></svg>
                             <span>RH-DEV-4</span>
+                            <svg class="lock-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="12" height="12" style="margin-left: 4px; color: #71717a;"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
                         </button>
                         <button class="model-selector-btn" data-model="RH-IMG-3">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="m15.96 10.29-2.75 3.54-1.96-2.36L8.5 15.5h6.83l-2.09-2.58L15.96 10.29M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12z"></path></svg>
                             <span>RH-IMG-3</span>
+                            <svg class="lock-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="12" height="12" style="margin-left: 4px; color: #71717a;"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
                         </button>
                         <button class="model-selector-btn" data-model="RH-VDO-1">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M16 4c.55 0 1 .45 1 1v4.2l2.9-2.9c.54-.54 1.48-.15 1.48.63v10.14c0 .78-.94 1.17-1.48.63L17 14.8V19c0 .55-.45 1-1 1H5c-.55 0-1-.45-1-1V5c0-.55.45-1 1-1h11zM15 17V7H6v10h9z"></path></svg>
@@ -1763,59 +1794,83 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebas
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
-
-        const isMobileDevice = () => /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|wv/i.test(navigator.userAgent);
         
-        // Wait for redirect result
-        getRedirectResult(auth).then(async (result) => {
-            if (result) {
-                try {
-                    const idToken = await result.user.getIdToken();
-                    const response = await fetch('/api/auth/sync', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ idToken, provider: 'google' })
-                    });
+        // Ensure persistence is set to LOCAL
+        setPersistence(auth, browserLocalPersistence)
+            .then(() => console.log("Firebase Auth persistence set to LOCAL"))
+            .catch(err => console.error("Persistence error:", err));
+
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+
+        // Robust Auth Sync with Backend
+        async function syncWithBackend(user) {
+            try {
+                const idToken = await user.getIdToken(true); // Force refresh
+                const response = await fetch('/api/auth/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ idToken, provider: 'google' })
+                });
+                
+                if (response.ok) {
                     const data = await response.json();
-                    if (!response.ok) throw new Error(data.error || 'Authentication failed');
-                    
                     const userForSession = data.user;
                     delete userForSession.password;
+                    
                     localStorage.setItem('authToken', data.token);
                     localStorage.setItem('risergpt_currentUser', JSON.stringify(userForSession));
                     localStorage.removeItem('risergpt_guestData');
-                    window.location.reload();
-                } catch(e) {
-                    console.error("Redirect auth error:", e);
+                    
+                    console.log("Auth sync successful for:", user.email);
+                    return { success: true, user: userForSession };
+                } else {
+                    const errorData = await response.json();
+                    console.error("Backend sync failed:", errorData.error);
+                    return { success: false, error: errorData.error };
                 }
+            } catch (error) {
+                console.error("Auth sync exception:", error);
+                return { success: false, error: error.message };
             }
-        }).catch(err => console.error(err));
+        }
 
-        // Background session restore if missing local token but Firebase is logged in
+        // Centralized Auth Listener
         onAuthStateChanged(auth, async (user) => {
-            if (user && !localStorage.getItem('authToken')) {
-                try {
-                    const idToken = await user.getIdToken();
-                    const response = await fetch('/api/auth/sync', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ idToken, provider: 'google' })
-                    });
-                    if (response.ok) {
-                        const data = await response.json();
-                        const userForSession = data.user;
-                        delete userForSession.password;
-                        localStorage.setItem('authToken', data.token);
-                        localStorage.setItem('risergpt_currentUser', JSON.stringify(userForSession));
-                        localStorage.removeItem('risergpt_guestData');
-                        window.location.reload();
+            if (user) {
+                console.log("Firebase User Detected:", user.email);
+                
+                // If we don't have our internal authToken or the user changed, sync
+                const localUser = JSON.parse(localStorage.getItem('risergpt_currentUser'));
+                if (!localStorage.getItem('authToken') || !localUser || localUser.email !== user.email) {
+                    console.log("Syncing session with backend...");
+                    const result = await syncWithBackend(user);
+                    if (result.success) {
+                        window.location.reload(); // Refresh to catch all state changes
                     }
-                } catch(e) {
-                    console.error("Auth restore error:", e);
+                }
+            } else {
+                console.log("No Firebase User.");
+                // If we are logged in according to localStorage but not Firebase, we should log out locally
+                if (localStorage.getItem('authToken') || localStorage.getItem('risergpt_currentUser')) {
+                    console.log("Local session detected but no Firebase user. Cleaning up...");
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('risergpt_currentUser');
+                    window.location.reload();
                 }
             }
         });
+
+        // Handle Redirect Results for Mobile
+        getRedirectResult(auth).then(async (result) => {
+            if (result) {
+                console.log("Google Redirect Success");
+                const syncResult = await syncWithBackend(result.user);
+                if (syncResult.success) {
+                    window.location.reload();
+                }
+            }
+        }).catch(err => console.error("Redirect Error:", err));
 
         // --- SECURITY INJECTION: JWT Fetch Interceptor ---
         const originalFetch = window.fetch;
@@ -2083,26 +2138,14 @@ const _initAppElements = () => {
                     sessionStorage.setItem('risergpt_landing_seen', 'true');
 
                     setTimeout(() => {
-
                         landingPage.style.display = 'none';
-
                         if (cleanupParticles) cleanupParticles();
-
-                        // OPEN AUTH SCREEN
-                        const authScreen = document.getElementById('auth-screen');
-
-                        if (authScreen) {
-
-                            authScreen.style.display = 'flex';
-
-                            authScreen.classList.add('active');
-
-                        }
-
+                        
+                        // OPEN CHAT DIRECTLY AS GUEST
+                        appContainer.style.display = 'flex';
+                        appContainer.classList.add('active');
                     }, 500);
-
                 });
-
             });
             
             // Smooth scroll for nav links within the landing page
@@ -2130,6 +2173,15 @@ const _initAppElements = () => {
     const logoutBtn = document.getElementById('logout-btn');
     const loginSignupBtn = document.getElementById('login-signup-btn');
     const welcomeLoginBtn = document.getElementById('welcome-login-btn');
+
+    // New Auth Modal Elements
+    const authCloseBtn = document.getElementById('auth-close-btn');
+    const authInitialView = document.getElementById('auth-initial-view');
+    const authEmailFlow = document.getElementById('auth-email-flow');
+    const continueWithEmailBtn = document.getElementById('continue-with-email-btn');
+    const backToAuthChoices = document.getElementById('back-to-auth-choices');
+    const authMainTitle = document.getElementById('auth-main-title');
+    const authMainSubtitle = document.getElementById('auth-main-subtitle');
 
     // OTP & Forgot Password
     const otpEmailDisplay = document.getElementById('otp-email-display');
@@ -2247,8 +2299,31 @@ const _initAppElements = () => {
         });
     }
     if(logoutBtn) logoutBtn.addEventListener('click', handleLogout);
-    if(loginSignupBtn) loginSignupBtn.addEventListener('click', () => { closeSidebar(); showAuthScreen(); });
-    if(welcomeLoginBtn) welcomeLoginBtn.addEventListener('click', () => { showAuthScreen(); });
+    if(loginSignupBtn) loginSignupBtn.addEventListener('click', () => { closeSidebar(); showAuthScreen(true); });
+    if(welcomeLoginBtn) welcomeLoginBtn.addEventListener('click', () => { showAuthScreen(true); });
+
+    // Choice View Logic
+    if(continueWithEmailBtn) {
+        continueWithEmailBtn.addEventListener('click', () => {
+            authInitialView.classList.add('hidden');
+            authEmailFlow.classList.remove('hidden');
+        });
+    }
+
+    if(backToAuthChoices) {
+        backToAuthChoices.addEventListener('click', (e) => {
+            e.preventDefault();
+            authInitialView.classList.remove('hidden');
+            authEmailFlow.classList.add('hidden');
+        });
+    }
+
+    if(authCloseBtn) {
+        authCloseBtn.addEventListener('click', () => {
+            authScreen.style.display = 'none';
+            authScreen.classList.remove('active');
+        });
+    }
 
     // Auth Forms
     loginForm.addEventListener('submit', handleLogin);
@@ -2455,7 +2530,20 @@ const _initAppElements = () => {
         appContainer.style.display = 'flex'; // Ensure flex is restored
     }
 
-    function showAuthScreen() { authScreen.style.display = 'flex'; }
+    function showAuthScreen(dismissible = false, title = "", subtitle = "") { 
+        authScreen.style.display = 'flex'; 
+        setTimeout(() => authScreen.classList.add('active'), 10);
+        
+        authInitialView.classList.remove('hidden');
+        authEmailFlow.classList.add('hidden');
+        authCloseBtn.style.display = dismissible ? 'block' : 'none';
+
+        if (title) authMainTitle.textContent = title;
+        else authMainTitle.textContent = "Log in or sign up";
+
+        if (subtitle) authMainSubtitle.textContent = subtitle;
+        else authMainSubtitle.textContent = "Join RiserGPT to unlock premium models and unlimited chat.";
+    }
     function showApp() { appContainer.style.display = 'flex'; }
     function showAdminLogin() { 
         hideAllScreens(); 
@@ -2864,79 +2952,48 @@ const _initAppElements = () => {
     }
 
     const googleBtn = document.getElementById('google-signin-btn');
+    const googleBtnEmail = document.getElementById('google-signin-btn-email');
 
-    if (googleBtn) {
+    const handleGoogleSignIn = async (btn) => {
+        const btnText = btn.querySelector('.btn-text');
+        try {
+            console.log("Initiating Google Sign-In Popup...");
+            setAuthError('');
+            btnText.textContent = 'Connecting...';
+            btn.disabled = true;
 
-        googleBtn.addEventListener('click', async () => {
-
-            const btnText = googleBtn.querySelector('.btn-text');
-
-            try {
-
-                setAuthError('');
-
-                btnText.textContent = 'Connecting...';
-                googleBtn.disabled = true;
-
-                const provider = new GoogleAuthProvider();
-
-                provider.setCustomParameters({
-                    prompt: 'select_account'
-                });
-
-                await setPersistence(auth, browserLocalPersistence);
-
-                const result = await signInWithPopup(auth, provider);
-
-                const idToken = await result.user.getIdToken();
-
-                const response = await fetch('/api/auth/sync', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify({
-                        idToken,
-                        provider: 'google'
-                    })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-
-                    localStorage.setItem('authToken', data.token);
-
-                    window.location.reload();
-
-                } else {
-
-                    setAuthError(data.error || 'Authentication failed');
-                }
-
-            } catch (error) {
-
-                console.error('Google sign-in error:', error);
-
-                if (error.code === 'auth/popup-closed-by-user') {
-                    setAuthError('The sign-in popup was closed before completion. If the window was blank, please wait a few seconds or check your connection.');
-                } else if (error.code === 'auth/cancelled-popup-request') {
-                    setAuthError('Multiple sign-in requests. Please close other popups and try again.');
-                } else if (error.code === 'auth/popup-blocked') {
-                    setAuthError('Sign-in popup was blocked by your browser. Please allow popups for this site.');
-                } else {
-                    setAuthError(error.message || 'Google Sign-In failed');
-                }
-
-            } finally {
-
-                const isSignup = !signupForm.classList.contains('hidden');
-                btnText.textContent = isSignup ? 'Sign up with Google' : 'Continue with Google';
-                googleBtn.disabled = false;
+            const provider = new GoogleAuthProvider();
+            provider.setCustomParameters({ prompt: 'select_account' });
+            
+            // setPersistence is already set at module level, but we can ensure it here
+            await setPersistence(auth, browserLocalPersistence);
+            
+            const result = await signInWithPopup(auth, provider);
+            console.log("Google Sign-In Success:", result.user.email);
+            
+            // onAuthStateChanged will handle the sync and reload
+            // But we can show immediate feedback here
+            btnText.textContent = 'Syncing...';
+            
+        } catch (error) {
+            console.error('Google sign-in error:', error);
+            if (error.code === 'auth/popup-closed-by-user') {
+                setAuthError('Sign-in popup closed by user.');
+            } else if (error.code === 'auth/popup-blocked') {
+                setAuthError('Popup blocked by browser. Please allow popups for this site.');
+            } else if (error.code === 'auth/cancelled-popup-request') {
+                setAuthError('Sign-in request was cancelled.');
+            } else {
+                setAuthError(error.message || 'Google Sign-In failed');
             }
-        });
-    }
+            const isSignup = !signupForm.classList.contains('hidden');
+            btnText.textContent = isSignup ? 'Sign up with Google' : 'Continue with Google';
+            btn.disabled = false;
+        }
+    };
+
+    if (googleBtn) googleBtn.addEventListener('click', () => handleGoogleSignIn(googleBtn));
+    if (googleBtnEmail) googleBtnEmail.addEventListener('click', () => handleGoogleSignIn(googleBtnEmail));
 
     // --- ADMIN PANEL LOGIC ---
     async function handleAdminLogin(e) {
@@ -3629,8 +3686,7 @@ const _initAppElements = () => {
                 }
 
                 if ((model === 'RH-IMG-3' || model === 'RH-DEV-4') && !currentUser) {
-                    alert('Please log in or create an account to use this model.');
-                    showAuthScreen();
+                    showAuthScreen(true, "Premium Model Locked", "Please log in to access this advanced model.");
                     return;
                 }
 
@@ -3805,6 +3861,9 @@ const _initAppElements = () => {
                 document.body.classList.add('is-logged-in');
                 document.body.classList.remove('is-guest');
                 
+                // Hide locks
+                document.querySelectorAll('.lock-icon').forEach(lock => lock.classList.add('hidden'));
+                
                 const cachedData = ChatCache.load(currentUser.email);
                 chats = cachedData.chats;
                 if (!currentChatId) currentChatId = cachedData.currentChatId;
@@ -3814,6 +3873,9 @@ const _initAppElements = () => {
             } else {
                 document.body.classList.add('is-guest');
                 document.body.classList.remove('is-logged-in');
+                
+                // Show locks
+                document.querySelectorAll('.lock-icon').forEach(lock => lock.classList.remove('hidden'));
                 
                 const guestCache = ChatCache.load(null);
                 chats = guestCache.chats;
@@ -3850,7 +3912,7 @@ const _initAppElements = () => {
             }
 
             if (guestData.messageCount >= GUEST_MESSAGE_LIMIT) {
-                alert('You have reached your daily message limit. Please log in or create an account for unlimited access.');
+                showAuthScreen(false, "Daily Limit Reached", "You've sent 25 messages today. Log in to continue chatting with RiserGPT.");
                 return false;
             }
 

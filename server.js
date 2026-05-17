@@ -45,8 +45,6 @@ app.disable('x-powered-by');
 // CORS configuration
 const allowedOrigins = [
     'https://risergpt.qzz.io',
-    'https://risergpt-production.up.railway.app',
-    'https:/ai.risergpt.qzz.io/',
     /^http:\/\/localhost:\d+$/,
     /^http:\/\/127\.0\.0\.1:\d+$/,
     /^https:\/\/.*\.run\.app$/
@@ -80,11 +78,12 @@ app.use(helmet({
                 "https://www.gstatic.com",
                 "https://apis.google.com",
                 "https://accounts.google.com",
-                "https://risergpt-fb614.firebaseapp.com"
+                "https://*.firebaseapp.com",
+                "https://*.googleapis.com"
             ],
-            styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com", "https://www.gstatic.com"],
             fontSrc: ["'self'", "https://fonts.gstatic.com"],
-            imgSrc: ["'self'", "data:", "blob:", "https:"],
+            imgSrc: ["'self'", "data:", "blob:", "https:", "https://*.googleusercontent.com", "https://www.gstatic.com"],
             connectSrc: [
                 "'self'",
                 "https://api.tavily.com",
@@ -95,7 +94,7 @@ app.use(helmet({
                 "https://apis.google.com",
                 "https://accounts.google.com",
                 "https://www.googleapis.com",
-                "https://risergpt-fb614.firebaseapp.com",
+                "https://*.firebaseapp.com",
                 "https://*.firebaseio.com",
                 "wss://*.firebaseio.com",
                 "https://www.gstatic.com"
@@ -104,9 +103,9 @@ app.use(helmet({
                 "'self'",
                 "https://accounts.google.com",
                 "https://apis.google.com",
-                "https://risergpt-fb614.firebaseapp.com"
+                "https://*.firebaseapp.com"
             ],
-            childSrc: ["'self'", "blob:", "https://risergpt-fb614.firebaseapp.com"],
+            childSrc: ["'self'", "blob:", "https://*.firebaseapp.com"],
             workerSrc: ["'self'", "blob:"]
         },
     },
