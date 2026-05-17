@@ -45,6 +45,8 @@ app.disable('x-powered-by');
 // CORS configuration
 const allowedOrigins = [
     'https://risergpt.qzz.io',
+    'https://risergpt-production.up.railway.app',
+    'https:/ai.risergpt.qzz.io/',
     /^http:\/\/localhost:\d+$/,
     /^http:\/\/127\.0\.0\.1:\d+$/,
     /^https:\/\/.*\.run\.app$/
