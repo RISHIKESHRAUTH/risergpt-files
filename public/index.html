@@ -219,6 +219,7 @@
             background: white;
             border-radius: 50%;
             opacity: 0;
+            animation: particle-orbit 2.5s infinite ease-in-out;
         }
 
         @keyframes particle-orbit {
@@ -245,6 +246,32 @@
             0%, 100% { opacity: 0.7; }
             50% { opacity: 1; }
         }
+
+        .loading-title, .loading-subtitle {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            height: 1.5em; /* fixed height to prevent jumps */
+            width: 100%;
+        }
+
+        .loading-title span, .loading-subtitle span {
+            position: absolute;
+            opacity: 0;
+            animation: text-cycle 12s infinite;
+            white-space: nowrap;
+        }
+
+        .loading-title span:nth-child(1), .loading-subtitle span:nth-child(1) { animation-delay: 0s; }
+        .loading-title span:nth-child(2), .loading-subtitle span:nth-child(2) { animation-delay: 3s; }
+        .loading-title span:nth-child(3), .loading-subtitle span:nth-child(3) { animation-delay: 6s; }
+        .loading-title span:nth-child(4), .loading-subtitle span:nth-child(4) { animation-delay: 9s; }
+
+        @keyframes text-cycle {
+            0%, 20% { opacity: 1; transform: scale(1); }
+            25%, 100% { opacity: 0; transform: scale(0.95); }
+        }
+
 
         .final-image {
             width: 100%;
@@ -535,19 +562,19 @@
         .ai-generated-image.loaded {
             opacity: 1;
         }
-        .image-gen-container::before {
-            content: 'Generating...';
-            position: absolute;
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 0.9rem;
-            animation: pulse-op 1.5s infinite;
-            z-index: 0;
+        
+        .image-gen-container {
+            position: relative;
+            background: linear-gradient(90deg, #1f2937 0%, #374151 50%, #1f2937 100%);
+            background-size: 200% 100%;
+            animation: shimmer-skeleton 2s infinite linear;
         }
-        @keyframes pulse-op {
-            0% { opacity: 0.3; }
-            50% { opacity: 0.8; }
-            100% { opacity: 0.3; }
+        
+        @keyframes shimmer-skeleton {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
         }
+        
         @media (max-width: 768px) {
             .image-gen-container {
                 max-width: 100%;
@@ -2196,18 +2223,20 @@ const _initAppElements = () => {
                     this.x = Math.random() * canvas.width;
                     this.y = Math.random() * canvas.height;
                     this.size = Math.random() * 2 + 0.5;
-                    this.speedX = Math.random() * 0.5 - 0.25;
-                    this.speedY = Math.random() * 0.5 - 0.25;
+                    this.speedX = Math.random() * 1 - 0.5; // slight wind
+                    this.speedY = Math.random() * 1.5 + 0.5; // fall downwards
                     // soft glowing snow-like
-                    this.color = `rgba(255, 255, 255, ${Math.random() * 0.3 + 0.1})`;
+                    this.color = `rgba(255, 255, 255, ${Math.random() * 0.5 + 0.2})`;
                 }
                 update() {
                     this.x += this.speedX;
-                    this.y -= this.speedY; // float upwards gently like particles
+                    this.y += this.speedY; // fall downwards like snow
                     if (this.x < 0) this.x = canvas.width;
                     if (this.x > canvas.width) this.x = 0;
-                    if (this.y < 0) this.y = canvas.height;
-                    if (this.y > canvas.height) this.y = 0;
+                    if (this.y > canvas.height) {
+                        this.y = 0; // reset to top
+                        this.x = Math.random() * canvas.width;
+                    }
                 }
                 draw() {
                     ctx.fillStyle = this.color;
@@ -3846,11 +3875,23 @@ const _initAppElements = () => {
                 if (!email) return;
                 chat.owner = email;
                 try {
-                    await fetch('/api/chats', {
+                    const res = await fetch('/api/chats', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(chat)
                     });
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.success && data.assignedId && data.assignedId !== chat.id) {
+                            const oldId = chat.id;
+                            chat.id = data.assignedId;
+                            if (currentChatId === oldId) {
+                                currentChatId = chat.id;
+                                localStorage.setItem(ChatCache.getCurrentChatKey(email), currentChatId);
+                            }
+                            renderChatHistory();
+                        }
+                    }
                 } catch (e) {
                     console.error("Failed to sync chat", e);
                 }
@@ -3874,10 +3915,9 @@ const _initAppElements = () => {
                 localStorage.setItem(this.getCurrentChatKey(email), currentChatId);
                 
                 if (!email) {
-                    // Guest logic
-                    const currentChat = findChatById(currentChatId);
+                    // Guest logic: save all chats locally
                     localStorage.setItem(this.getKey(null), JSON.stringify({
-                        chats: currentChat ? [currentChat] : [],
+                        chats: chats || [],
                         messageCount: getGuestData().messageCount,
                         timestamp: getGuestData().timestamp
                     }));
@@ -4261,7 +4301,15 @@ const _initAppElements = () => {
 
                 // Create placeholder message so we can stream into state
                 const assistantMsgId = `${Date.now()}`;
-                chatToUpdate.messages.push({ id: assistantMsgId, role: 'assistant', content: '' });
+                const isImageGen = selectedModel === 'RH-IMG-3';
+                const ratioClass = intelligentParams ? intelligentParams.ratioClass : 'square';
+                chatToUpdate.messages.push({ 
+                    id: assistantMsgId, 
+                    role: 'assistant', 
+                    content: '', 
+                    isGeneratingImage: isImageGen,
+                    imgRatioClass: ratioClass
+                });
                 const msgIndex = chatToUpdate.messages.length - 1;
 
                 const response = await fetch('/api/chat', {
@@ -4308,6 +4356,7 @@ const _initAppElements = () => {
                                         // Detect image URL in markdown: ![Generated Image](url)
                                         const imgMatch = text.match(/!\[.*?\]\((.*?)\)/);
                                         if (imgMatch && imgMatch[1]) {
+                                            chatToUpdate.messages[msgIndex].generatedImage = imgMatch[1];
                                             revealGeneratedImage(imgGenContainer, imgMatch[1]);
                                             fullResponse = text; // Keep the markdown as the content
                                         }
@@ -4340,6 +4389,7 @@ const _initAppElements = () => {
                     .replace(/Llama|Grok/gi, "custom multi-model system");
 
                 chatToUpdate.messages[msgIndex].content = protectedResponse;
+                delete chatToUpdate.messages[msgIndex].isGeneratingImage;
                 messageContentElement.classList.remove('streaming-active');
                 renderMessages();
                 
@@ -4349,6 +4399,9 @@ const _initAppElements = () => {
             } catch (error) {
                 console.error("Chat Error:", error);
                 messageContentElement.innerHTML = `<div style="color: #ef4444;">Error: Connection to RiserGPT backend failed. Check .env config.</div>`;
+                if (chatToUpdate && chatToUpdate.messages && chatToUpdate.messages.length > 0) {
+                    delete chatToUpdate.messages[chatToUpdate.messages.length - 1].isGeneratingImage;
+                }
             }
 
             setGeneratingState(false);
@@ -4714,11 +4767,17 @@ const _initAppElements = () => {
             render(content, isClosed, id) {
                 const statusText = isClosed ? 'Reasoning complete' : 'Reasoning...';
                 const isOpen = !isClosed;
-                const innerHtml = MarkdownRenderer.render(content);
+                let innerHtml = '';
+                try {
+                    innerHtml = MarkdownRenderer.render(content);
+                } catch(e) {
+                    console.error('Markdown fail', e);
+                    innerHtml = content; // fallback
+                }
                 
                 return `
                     <div class="reasoning-container ${isOpen ? 'open' : ''}" data-block-id="${id}">
-                        <div class="reasoning-header" onclick="this.parentElement.classList.toggle('open')">
+                        <div class="reasoning-header">
                             <div class="header-left">
                                 <svg class="reasoning-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
                                 <span>${statusText}</span>
@@ -4741,7 +4800,7 @@ const _initAppElements = () => {
                         <div class="code-header">
                             <span class="code-lang-label">${language}</span>
                             <div class="code-actions">
-                                <button class="code-action-btn" onclick="copyCodeFromBtn(this, ${id})">
+                                <button class="code-action-btn copy-code-btn">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                                     <span>Copy</span>
                                 </button>
@@ -4756,13 +4815,16 @@ const _initAppElements = () => {
         const ImageBlock = {
             render(url, alt, id) {
                 return `
-                    <div class="image-gen-container" onclick="openFullscreenViewer('${url}')" data-block-id="${id}">
-                        <img src="${url}" alt="${alt}" loading="lazy" class="ai-generated-image loaded">
+                    <div class="image-gen-container premium-gen" data-block-id="${id}" data-url="${url}" style="background: none;">
+                        <img src="${url}" alt="${alt}" loading="lazy" class="ai-generated-image loaded" style="opacity: 1;" onload="this.style.opacity='1'" onerror="this.onerror=null; this.closest('.image-gen-container').innerHTML='<div class=\\'image-loading-card\\' style=\\'border: 2px dashed rgba(239, 68, 68, 0.3);\\'><div class=\\'loading-title\\' style=\\'color: #ef4444;\\'>GENERATION FAILED</div></div>';">
                         <div class="image-actions">
-                            <button class="img-action-btn download-img" onclick="event.stopPropagation(); downloadImage('${url}', 'RiserGPT_${Date.now()}.png')">
+                            <button class="img-action-btn copy-img" title="Copy Image">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5ZM19 21H8V7H19V21Z"/></svg>
+                            </button>
+                            <button class="img-action-btn download-img" title="Download">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
                             </button>
-                            <button class="img-action-btn fullscreen-img" onclick="event.stopPropagation(); openFullscreenViewer('${url}')">
+                            <button class="img-action-btn fullscreen-img" title="Full Screen">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
                             </button>
                         </div>
@@ -4811,25 +4873,46 @@ const _initAppElements = () => {
                 workingText = workingText.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
 
                 // 3. Render Markdown
-                let html = MarkdownRenderer.render(workingText);
+                let html = '';
+                try {
+                    html = MarkdownRenderer.render(workingText);
+                } catch(e) {
+                    console.error('Markdown format fail', e);
+                    html = workingText; // fallback
+                }
 
                 // 4. Restore Blocks with components
                 html = html.replace(/PLACEHOLDER_REASONING_(\d+)/g, (match, id) => {
-                    const block = REASONING_BLOCKS[id];
-                    if (!block) return match;
-                    return ReasoningBlock.render(block.content, block.closed, id);
+                    try {
+                        const block = REASONING_BLOCKS[id];
+                        if (!block) return match;
+                        return ReasoningBlock.render(block.content, block.closed, id);
+                    } catch(err) {
+                        console.error('Reasoning render error:', err);
+                        return `<div style="color:red">[Reasoning block failed to render]</div>`;
+                    }
                 });
 
                 html = html.replace(/PLACEHOLDER_CODE_(\d+)/g, (match, id) => {
-                    const block = CODE_BLOCKS_DATA[id];
-                    if (!block) return match;
-                    return CodeBlock.render(block.code, block.lang, id);
+                    try {
+                        const block = CODE_BLOCKS_DATA[id];
+                        if (!block) return match;
+                        return CodeBlock.render(block.code, block.lang, id);
+                    } catch(err) {
+                        console.error('CodeBlock render error:', err);
+                        return `<div style="color:red">[Code block failed to render]</div>`;
+                    }
                 });
 
                 html = html.replace(/PLACEHOLDER_IMAGE_(\d+)/g, (match, id) => {
-                    const block = tempImageBlocks[id];
-                    if (!block) return match;
-                    return ImageBlock.render(block.url, block.alt, id);
+                    try {
+                        const block = tempImageBlocks[id];
+                        if (!block) return match;
+                        return ImageBlock.render(block.url, block.alt, id);
+                    } catch(err) {
+                        console.error('ImageBlock render error:', err);
+                        return `<div style="color:red">[Image failed to render]</div>`;
+                    }
                 });
 
                 // 5. Sanitize if DOMPurify is available
@@ -4861,16 +4944,46 @@ const _initAppElements = () => {
         window.copyCodeFromBtn = function(btn, index) {
             const block = CODE_BLOCKS_DATA[index];
             if (!block) return;
-            navigator.clipboard.writeText(block.code).then(() => {
-                const originalText = btn.querySelector('span').innerText;
+            const code = block.code;
+            
+            const markCopied = () => {
+                const span = btn.querySelector('span');
+                if(!span) return;
+                const originalText = span.innerText;
                 btn.classList.add('copied');
-                btn.querySelector('span').innerText = 'Copied!';
+                span.innerText = 'Copied!';
                 setTimeout(() => {
                     btn.classList.remove('copied');
-                    btn.querySelector('span').innerText = originalText;
+                    span.innerText = originalText;
                 }, 2000);
-            });
+            };
+
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(code).then(markCopied).catch(err => {
+                    console.warn("Clipboard API failed, using fallback.", err);
+                    fallbackCopy(code, markCopied);
+                });
+            } else {
+                fallbackCopy(code, markCopied);
+            }
         };
+        
+        function fallbackCopy(text, onSuccess) {
+            try {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                textArea.style.position = "fixed";  // Avoid scrolling
+                textArea.style.opacity = "0";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                const successful = document.execCommand('copy');
+                document.body.removeChild(textArea);
+                if(successful && onSuccess) onSuccess();
+            } catch (err) {
+                console.error('Fallback copy failed', err);
+            }
+        }
 
         window.downloadCodeFromIdx = (index) => {
             const block = CODE_BLOCKS_DATA[index];
@@ -5313,20 +5426,58 @@ const _initAppElements = () => {
                 
                 // Handle Image Generation
                 if (msg.isGeneratingImage) {
+                    let particlesHtml = '';
+                    for(let i=0; i<20; i++) {
+                        const angle = (i / 20) * Math.PI * 2;
+                        const dist = 40 + Math.abs(Math.sin(i * 999)) * 40;
+                        const tx = Math.cos(angle) * dist;
+                        const ty = Math.sin(angle) * dist;
+                        particlesHtml += `<div class="particle" style="--tx: ${tx}px; --ty: ${ty}px; animation-delay: ${i * 0.1}s;"></div>`;
+                    }
+                    
                     contentHtml = `
-                    <div class="image-generation-placeholder">
-                        <div class="gemini-loader">
-                            <div class="orb"></div>
-                            <div class="sparkle-1"></div>
-                            <div class="sparkle-2"></div>
-                            <div class="sparkle-3"></div>
-                            <div class="sparkle-4"></div>
+                    <div class="image-gen-container ${msg.imgRatioClass || 'square'} premium-gen">
+                        <div class="image-loading-card">
+                            <div class="loading-animation-wrapper">
+                                <div class="shimmer-overlay"></div>
+                                <div class="particle-container">
+                                    ${particlesHtml}
+                                </div>
+                                <div class="pulse-core"></div>
+                            </div>
+                            <div class="loading-text-stages">
+                                <div class="loading-title">
+                                    <span>ANALYZING PROMPT</span>
+                                    <span>CRAFTING TEXTURES</span>
+                                    <span>LIGHTING SCENE</span>
+                                    <span>FINALIZING</span>
+                                </div>
+                                <div class="loading-subtitle">
+                                    <span>Enhancing details for cinematic quality...</span>
+                                    <span>Generating high-fidelity 8k details...</span>
+                                    <span>Simulating ray-traced shadows and highlights...</span>
+                                    <span>Proprietary RH-IMG-3 engine finishing up...</span>
+                                </div>
+                            </div>
                         </div>
-                        <p>Generating high-quality image...</p>
                     </div>`;
                 } 
                 else if (msg.generatedImage) {
-                    contentHtml = `<div class="image-container"><img src="${msg.generatedImage}" class="message-image loaded" alt="Generated Image" loading="lazy"></div>`;
+                    contentHtml = `
+                    <div class="image-gen-container ${msg.imgRatioClass || 'square'} premium-gen" style="background: none;">
+                        <img src="${msg.generatedImage}" class="final-image reveal" alt="Generated Image" loading="lazy" onerror="this.onerror=null; this.closest('.image-gen-container').innerHTML='<div class=\\'image-loading-card\\' style=\\'border: 2px dashed rgba(239, 68, 68, 0.3);\\'><div class=\\'loading-title\\' style=\\'color: #ef4444;\\'>GENERATION FAILED</div></div>';">
+                        <div class="image-actions">
+                            <button class="img-action-btn copy-img" title="Copy Image">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5ZM19 21H8V7H19V21Z"/></svg>
+                            </button>
+                            <button class="img-action-btn download-img" title="Download">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                            </button>
+                            <button class="img-action-btn fullscreen-img" title="Full Screen">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                            </button>
+                        </div>
+                    </div>`;
                 } 
                 else if (msg.generatedVideo) {
                     contentHtml = `<div class="video-container"><video controls src="${msg.generatedVideo}" class="message-video" style="width:100%; border-radius:8px;"></video></div>`;
@@ -5406,7 +5557,21 @@ const _initAppElements = () => {
                             <div class="message-avatar">${msg.role === 'user' ? 'U' : '🤖'}</div>
                             <div class="message-content">
                                 ${msg.image ? `<div class="image-container"><img src="${msg.image}" class="message-image loaded"></div>` : ''}
-                                ${msg.generatedImage ? `<div class="image-container"><img src="${msg.generatedImage}" class="message-image loaded"></div>` : ''}
+                                ${msg.generatedImage ? `
+                                <div class="image-gen-container ${msg.imgRatioClass || 'square'} premium-gen" style="background: none;">
+                                    <img src="${msg.generatedImage}" class="final-image reveal" alt="Generated Image" loading="lazy" onerror="this.onerror=null; this.closest('.image-gen-container').innerHTML='<div class=\\'image-loading-card\\' style=\\'border: 2px dashed rgba(239, 68, 68, 0.3);\\'><div class=\\'loading-title\\' style=\\'color: #ef4444;\\'>GENERATION FAILED</div></div>';">
+                                    <div class="image-actions">
+                                        <button class="img-action-btn copy-img" title="Copy Image">
+                                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5ZM19 21H8V7H19V21Z"/></svg>
+                                        </button>
+                                        <button class="img-action-btn download-img" title="Download">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                                        </button>
+                                        <button class="img-action-btn fullscreen-img" title="Full Screen">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                                        </button>
+                                    </div>
+                                </div>` : ''}
                                 ${msg.generatedVideo ? `<div class="video-container"><video controls src="${msg.generatedVideo}" class="message-video"></video></div>` : ''}
                                 <div class="message-text-display">${formatMessageContent(msg.content)}</div>
                                 <div class="message-actions-toolbar">
@@ -5433,67 +5598,40 @@ const _initAppElements = () => {
             const container = document.createElement('div');
             container.className = `image-gen-container ${ratioClass} premium-gen`;
             
+            let particlesHtml = '';
+            for(let i=0; i<20; i++) {
+                const angle = (i / 20) * Math.PI * 2;
+                const dist = 40 + Math.abs(Math.sin(i * 999)) * 40;
+                const tx = Math.cos(angle) * dist;
+                const ty = Math.sin(angle) * dist;
+                particlesHtml += `<div class="particle" style="--tx: ${tx}px; --ty: ${ty}px; animation-delay: ${i * 0.1}s;"></div>`;
+            }
+
             container.innerHTML = `
                 <div class="image-loading-card">
                     <div class="loading-animation-wrapper">
                         <div class="shimmer-overlay"></div>
-                        <div class="particle-container"></div>
+                        <div class="particle-container">
+                            ${particlesHtml}
+                        </div>
                         <div class="pulse-core"></div>
                     </div>
                     <div class="loading-text-stages">
-                        <div class="loading-title">RH-IMG-3 INITIALIZING</div>
-                        <div class="loading-subtitle">Neural realism engine is waking up...</div>
+                        <div class="loading-title">
+                            <span>ANALYZING PROMPT</span>
+                            <span>CRAFTING TEXTURES</span>
+                            <span>LIGHTING SCENE</span>
+                            <span>FINALIZING</span>
+                        </div>
+                        <div class="loading-subtitle">
+                            <span>Enhancing details for cinematic quality...</span>
+                            <span>Generating high-fidelity 8k details...</span>
+                            <span>Simulating ray-traced shadows and highlights...</span>
+                            <span>Proprietary RH-IMG-3 engine finishing up...</span>
+                        </div>
                     </div>
                 </div>
             `;
-            
-            // Text cycle animation
-            const stages = [
-                { title: "ANALYZING PROMPT", subtitle: "Enhancing details for cinematic quality..." },
-                { title: "CRAFTING TEXTURES", subtitle: "Generating high-fidelity 8k details..." },
-                { title: "LIGHTING SCENE", subtitle: "Simulating ray-traced shadows and highlights..." },
-                { title: "FINALIZING", subtitle: "Proprietary RH-IMG-3 engine finishing up..." }
-            ];
-            
-            let currentStage = 0;
-            const titleEl = container.querySelector('.loading-title');
-            const subEl = container.querySelector('.loading-subtitle');
-            
-            const stageInterval = setInterval(() => {
-                if (!container.parentElement || container.querySelector('.final-image.reveal')) {
-                    clearInterval(stageInterval);
-                    return;
-                }
-                const stage = stages[currentStage];
-                titleEl.style.opacity = '0';
-                subEl.style.opacity = '0';
-                
-                setTimeout(() => {
-                    titleEl.textContent = stage.title;
-                    subEl.textContent = stage.subtitle;
-                    titleEl.style.opacity = '1';
-                    subEl.style.opacity = '1';
-                }, 300);
-                
-                currentStage = (currentStage + 1) % stages.length;
-            }, 3000);
-            
-            // Add particles
-            const particleContainer = container.querySelector('.particle-container');
-            if (particleContainer) {
-                for(let i=0; i<20; i++) {
-                    const particle = document.createElement('div');
-                    particle.className = 'particle';
-                    const angle = (i / 20) * Math.PI * 2;
-                    const dist = 40 + Math.random() * 40;
-                    const tx = Math.cos(angle) * dist;
-                    const ty = Math.sin(angle) * dist;
-                    particle.style.setProperty('--tx', `${tx}px`);
-                    particle.style.setProperty('--ty', `${ty}px`);
-                    particle.style.animation = `particle-orbit 2.5s infinite ease-in-out ${i * 0.1}s`;
-                    particleContainer.appendChild(particle);
-                }
-            }
             
             return container;
         }
@@ -5532,32 +5670,6 @@ const _initAppElements = () => {
                     container.style.background = 'none';
                 }, 50);
 
-                // Re-attach listeners
-                const copyBtn = container.querySelector('.copy-img');
-                if (copyBtn) {
-                    copyBtn.onclick = (e) => {
-                        e.stopPropagation();
-                        copyImageToClipboard(imageUrl);
-                    };
-                }
-                
-                const downloadBtn = container.querySelector('.download-img');
-                if (downloadBtn) {
-                    downloadBtn.onclick = (e) => {
-                        e.stopPropagation();
-                        downloadImage(imageUrl, `RiserGPT_RH_IMG_3_${Date.now()}.png`);
-                    };
-                }
-                
-                const fullscreenBtn = container.querySelector('.fullscreen-img');
-                if (fullscreenBtn) {
-                    fullscreenBtn.onclick = (e) => {
-                        e.stopPropagation();
-                        openFullscreenViewer(imageUrl);
-                    };
-                }
-                container.onclick = () => openFullscreenViewer(imageUrl);
-                
             } catch (err) {
                 console.error("Image reveal failed", err);
                 container.innerHTML = `
@@ -5640,20 +5752,81 @@ const _initAppElements = () => {
         
         window.copyImageToClipboard = copyImageToClipboard;
         window.downloadImage = downloadImage;
+        
+        // Add Delegated Event Listeners for Chat Messages Interface
+        if (chatMessages) {
+            chatMessages.addEventListener('click', (e) => {
+                // 1. Reasoning Block Toggle
+                const reasoningHeader = e.target.closest('.reasoning-header');
+                if (reasoningHeader) {
+                    reasoningHeader.parentElement.classList.toggle('open');
+                    return;
+                }
+
+                // 2. Code Block Copy
+                const copyCodeBtn = e.target.closest('.copy-code-btn');
+                if (copyCodeBtn) {
+                    const blockWrapper = copyCodeBtn.closest('.code-block-wrapper');
+                    if (blockWrapper) {
+                        const id = blockWrapper.getAttribute('data-block-id');
+                        if (window.copyCodeFromBtn) window.copyCodeFromBtn(copyCodeBtn, id);
+                    }
+                    return;
+                }
+
+                // 3. Image Actions
+                const imgActionBtn = e.target.closest('.img-action-btn');
+                const imgContainer = e.target.closest('.image-gen-container');
+                
+                if (imgActionBtn) {
+                    e.stopPropagation();
+                    let url = '';
+                    if (imgContainer) {
+                        const img = imgContainer.querySelector('img');
+                        if (img) url = img.src;
+                    }
+                    if (!url) return;
+                    
+                    if (imgActionBtn.classList.contains('copy-img')) {
+                        copyImageToClipboard(url);
+                    } else if (imgActionBtn.classList.contains('download-img')) {
+                        downloadImage(url, `RiserGPT_Image_${Date.now()}.png`);
+                    } else if (imgActionBtn.classList.contains('fullscreen-img')) {
+                        openFullscreenViewer(url);
+                    }
+                    return;
+                }
+                
+                // 4. Click Image to Fullscreen
+                if (imgContainer) {
+                    const img = imgContainer.querySelector('img');
+                    if (img) openFullscreenViewer(img.src);
+                }
+            });
+        }
 
         init();
     } // End initChatApp
 
     // Start App
-    initializeMainApp();
+    const initApp = () => {
+       try {
+          initializeMainApp();
+       } catch(err) {
+          console.error(err);
+       }
+    };
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener("DOMContentLoaded", initApp);
+    } else {
+        initApp();
+    }
 
-} // End _initAppElements
+}; // CLOSE _initAppElements
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', _initAppElements);
-} else {
-    _initAppElements();
-}
+_initAppElements();
+
 </script>
 </body>
 </html>

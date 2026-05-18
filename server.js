@@ -544,38 +544,221 @@ app.get('/api/users', authenticateToken, requireAdmin, (req, res) => {
 
 // --- CHAT STORAGE ENDPOINTS ---
 
-app.get('/api/chats', authenticateOptional, (req, res) => {
-    const userEmail = req.user.email;
-    if (!userEmail || userEmail === 'guest') return res.json([]);
+const CHAT_INDEX_NAME = 'index.riser';
+
+function readChatIndex(userDir) {
+    const indexPath = path.join(userDir, CHAT_INDEX_NAME);
+    let indexData = { NEXT_CHAT_ID: 1, CACHE: {} };
+    if (fs.existsSync(indexPath)) {
+        try {
+            const content = fs.readFileSync(indexPath, 'utf8');
+            indexData = JSON.parse(content);
+        } catch(e) {}
+    }
     
-    const userDir = getUserChatDir(userEmail);
-    let allChats = [];
-    
+    // Repair CACHE if any .rchat files exist but aren't in index
+    let repaired = false;
     if (fs.existsSync(userDir)) {
         const files = fs.readdirSync(userDir);
         for (const file of files) {
-            if (file.endsWith('.json')) {
-                try {
-                    const data = JSON.parse(fs.readFileSync(path.join(userDir, file), 'utf8'));
-                    allChats.push(data);
-                } catch (e) {
-                    console.error('Error parsing chat file');
+            if (file.endsWith('.rchat')) {
+                // Find ID from filename or content
+                // the filename is YYYY-MM-DD_chat-N.rchat
+                const parts = file.split('_');
+                if (parts.length >= 2) {
+                    const idPart = parts.slice(1).join('_').replace('.rchat', '');
+                    if (!indexData.CACHE[idPart] || indexData.CACHE[idPart] !== file) {
+                        indexData.CACHE[idPart] = file;
+                        repaired = true;
+                        
+                        // Also update NEXT_CHAT_ID if it's chat-XYZ
+                        if (idPart.startsWith('chat-')) {
+                            const num = parseInt(idPart.substring(5), 10);
+                            if (!isNaN(num) && num >= indexData.NEXT_CHAT_ID) {
+                                indexData.NEXT_CHAT_ID = num + 1;
+                            }
+                        }
+                    }
                 }
             }
         }
     }
     
-    // Fallback sync
-    if (fs.existsSync(CHATS_DIR)) {
-        const files = fs.readdirSync(CHATS_DIR);
+    if (repaired) {
+        writeChatIndex(userDir, indexData);
+    }
+    return indexData;
+}
+
+function writeChatIndex(userDir, indexData) {
+    const indexPath = path.join(userDir, CHAT_INDEX_NAME);
+    // Write atomically
+    const tempPath = indexPath + '.tmp';
+    fs.writeFileSync(tempPath, JSON.stringify(indexData, null, 2), 'utf8');
+    fs.renameSync(tempPath, indexPath);
+}
+
+function serializeRChat(chat, currentUsername) {
+    let output = `CHAT_ID: ${chat.id}\n`;
+    output += `TITLE: ${chat.title || 'New Chat'}\n`;
+    output += `USER: ${currentUsername}\n`;
+    output += `MODEL: ${chat.model || 'RH-6'}\n`;
+    output += `CREATED: ${new Date(chat.timestamp || Date.now()).toISOString().split('T')[0]}\n`;
+    output += `TIMESTAMP: ${chat.timestamp || Date.now()}\n`;
+    output += `DELETED: ${chat.deleted ? 'true' : 'false'}\n`;
+    output += `PINNED: ${chat.pinned ? 'true' : 'false'}\n`;
+    output += `PRIORITIZED: ${chat.prioritized ? 'true' : 'false'}\n`;
+    output += `\n`;
+
+    if (chat.messages && chat.messages.length > 0) {
+        for (const msg of chat.messages) {
+            output += `[${msg.role.toUpperCase()}]\n`;
+            if (msg.image) output += `[IMAGE]: ${msg.image}\n`;
+            if (msg.generatedImage) output += `[GENERATED_IMAGE]: ${msg.generatedImage}\n`;
+            if (msg.imgRatioClass) output += `[IMG_RATIO]: ${msg.imgRatioClass}\n`;
+            if (msg.video) output += `[VIDEO]: ${msg.video}\n`;
+            if (msg.generatedVideo) output += `[GENERATED_VIDEO]: ${msg.generatedVideo}\n`;
+            if (msg.isGeneratingImage) output += `[IS_GENERATING]: true\n`;
+            if (msg.prioritized) output += `[PRIORITIZED]: true\n`;
+            if (msg.versions) output += `[VERSIONS]: ${JSON.stringify(msg.versions)}\n`;
+            if (msg.currentVersion !== undefined) output += `[CURRENT_VERSION]: ${msg.currentVersion}\n`;
+            
+            let content = msg.content || '';
+            output += `${content.trim()}\n\n`;
+        }
+    }
+    return output;
+}
+
+function parseRChat(content) {
+    const lines = content.split('\n');
+    let chat = { messages: [] };
+    let mode = 'header';
+    let currentRole = null;
+    let currentMsgMeta = {};
+    let currentContent = [];
+
+    const flushMessage = () => {
+        if (currentRole) {
+            chat.messages.push({
+                id: Math.random().toString(36).substr(2, 9),
+                role: currentRole,
+                content: currentContent.join('\n').trim(),
+                ...currentMsgMeta
+            });
+        }
+    };
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (mode === 'header') {
+            if (line.startsWith('CHAT_ID: ')) chat.id = line.substring(9).trim();
+            else if (line.startsWith('TITLE: ')) chat.title = line.substring(7).trim();
+            else if (line.startsWith('USER: ')) chat.owner = line.substring(6).trim();
+            else if (line.startsWith('MODEL: ')) chat.model = line.substring(7).trim();
+            else if (line.startsWith('TIMESTAMP: ')) chat.timestamp = parseInt(line.substring(11).trim(), 10);
+            else if (line.startsWith('DELETED: ')) chat.deleted = line.substring(9).trim() === 'true';
+            else if (line.startsWith('PINNED: ')) chat.pinned = line.substring(8).trim() === 'true';
+            else if (line.startsWith('PRIORITIZED: ')) chat.prioritized = line.substring(13).trim() === 'true';
+            else if (line === '') {
+                // Skip empty lines in header
+            } else if (line === '[USER]' || line === '[ASSISTANT]' || line === '[SYSTEM]') {
+                mode = 'body';
+                currentRole = line.substring(1, line.length - 1).toLowerCase();
+                currentMsgMeta = {};
+            }
+        } else if (mode === 'body') {
+            if (line === '[USER]' || line === '[ASSISTANT]' || line === '[SYSTEM]') {
+                flushMessage();
+                currentRole = line.substring(1, line.length - 1).toLowerCase();
+                currentContent = [];
+                currentMsgMeta = {};
+            } else if (line.startsWith('[IMAGE]: ')) {
+                currentMsgMeta.image = line.substring(9).trim();
+            } else if (line.startsWith('[GENERATED_IMAGE]: ')) {
+                currentMsgMeta.generatedImage = line.substring(19).trim();
+            } else if (line.startsWith('[IMG_RATIO]: ')) {
+                currentMsgMeta.imgRatioClass = line.substring(13).trim();
+            } else if (line.startsWith('[VIDEO]: ')) {
+                currentMsgMeta.video = line.substring(9).trim();
+            } else if (line.startsWith('[GENERATED_VIDEO]: ')) {
+                currentMsgMeta.generatedVideo = line.substring(19).trim();
+            } else if (line === '[IS_GENERATING]: true') {
+                currentMsgMeta.isGeneratingImage = true;
+            } else if (line === '[PRIORITIZED]: true') {
+                currentMsgMeta.prioritized = true;
+            } else if (line.startsWith('[VERSIONS]: ')) {
+                try { currentMsgMeta.versions = JSON.parse(line.substring(12).trim()); } catch(e) {}
+            } else if (line.startsWith('[CURRENT_VERSION]: ')) {
+                currentMsgMeta.currentVersion = parseInt(line.substring(19).trim(), 10);
+            } else {
+                currentContent.push(line);
+            }
+        }
+    }
+    flushMessage();
+    return chat;
+}
+
+function migrateOldJsonToRChat(userDir, userEmail) {
+    if (!fs.existsSync(userDir)) return;
+    const files = fs.readdirSync(userDir);
+    let indexData = readChatIndex(userDir);
+    let migrated = false;
+
+    for (const file of files) {
+        if (file.endsWith('.json') && file !== CHAT_INDEX_NAME) {
+            try {
+                const oldPath = path.join(userDir, file);
+                const data = JSON.parse(fs.readFileSync(oldPath, 'utf8'));
+                if (!data.id) continue;
+                
+                // Keep the same backend ID generation logic
+                let chatIdNum = indexData.NEXT_CHAT_ID++;
+                let newId = `chat-${chatIdNum}`;
+                data.id = newId;
+
+                const dateStr = new Date(data.timestamp || Date.now()).toISOString().split('T')[0];
+                const newFilename = `${dateStr}_${newId}.rchat`;
+                const newPath = path.join(userDir, newFilename);
+
+                fs.writeFileSync(newPath, serializeRChat(data, userEmail), 'utf8');
+                fs.unlinkSync(oldPath);
+                
+                indexData.CACHE[newId] = newFilename;
+                migrated = true;
+            } catch (e) {}
+        }
+    }
+    if (migrated) {
+        writeChatIndex(userDir, indexData);
+    }
+}
+
+app.get('/api/chats', authenticateOptional, (req, res) => {
+    const userEmail = req.user.email;
+    if (!userEmail || userEmail === 'guest') return res.json([]);
+    
+    const userDir = getUserChatDir(userEmail);
+    // Auto-migrate old .json
+    migrateOldJsonToRChat(userDir, userEmail);
+    
+    let allChats = [];
+    const indexData = readChatIndex(userDir);
+    
+    if (fs.existsSync(userDir)) {
+        const files = fs.readdirSync(userDir);
         for (const file of files) {
-            if (file.endsWith('.json')) {
+            if (file.endsWith('.rchat')) {
                 try {
-                    const data = JSON.parse(fs.readFileSync(path.join(CHATS_DIR, file), 'utf8'));
-                    if (data.owner === userEmail && !allChats.find(c => c.id === data.id)) {
+                    const content = fs.readFileSync(path.join(userDir, file), 'utf8');
+                    const data = parseRChat(content);
+                    if (!data.deleted) {
                         allChats.push(data);
                     }
-                } catch (e) {}
+                } catch (e) {
+                    console.error('Error parsing .rchat file', e);
+                }
             }
         }
     }
@@ -585,25 +768,23 @@ app.get('/api/chats', authenticateOptional, (req, res) => {
 });
 
 app.get('/api/chats/:id', authenticateOptional, (req, res) => {
-    const chatId = path.basename(req.params.id); // Prevent path traversal
+    const requestedId = path.basename(req.params.id); 
     const userEmail = req.user.email;
     
     const userDir = getUserChatDir(userEmail);
-    let chatFile = path.join(userDir, `${chatId}.json`);
+    const indexData = readChatIndex(userDir);
+    const filename = indexData.CACHE[requestedId];
     
-    if (!fs.existsSync(chatFile)) {
-        const fallbackPath = path.join(CHATS_DIR, `${chatId}.json`);
-        if (fs.existsSync(fallbackPath)) {
-            chatFile = fallbackPath;
-        } else {
-            return res.status(404).json({ error: 'Chat not found' });
-        }
-    }
+    if (!filename) return res.status(404).json({ error: 'Chat not found in index' });
+    
+    const chatFile = path.join(userDir, filename);
+    if (!fs.existsSync(chatFile)) return res.status(404).json({ error: 'Chat file missing' });
 
     fs.readFile(chatFile, 'utf8', (err, data) => {
         if (err) return res.status(500).json({ error: 'Read error' });
         try {
-            const chat = JSON.parse(data);
+            const chat = parseRChat(data);
+            if (chat.deleted) return res.status(404).json({ error: 'Chat has been removed' });
             if (chat.shared || chat.owner === userEmail || req.user.role === 'admin') {
                 res.json(chat);
             } else {
@@ -618,60 +799,96 @@ app.get('/api/chats/:id', authenticateOptional, (req, res) => {
 app.post('/api/chats', authenticateOptional, (req, res) => {
     const chat = req.body;
     if (!chat.id) return res.status(400).json({ error: 'Chat ID required' });
-    const chatId = path.basename(chat.id); // Prevent path traversal
     
     const requestedEmail = req.user.email;
     if(chat.owner !== requestedEmail && req.user.role !== 'admin') {
-        chat.owner = requestedEmail; // Force ownership to the authenticated user
+        chat.owner = requestedEmail;
     }
 
     const userDir = getUserChatDir(chat.owner);
-    const chatFile = path.join(userDir, `${chatId}.json`);
+    let indexData = readChatIndex(userDir);
     
-    if (fs.existsSync(chatFile)) {
-        try {
-            const existingData = JSON.parse(fs.readFileSync(chatFile, 'utf8'));
-            if (existingData.owner && existingData.owner !== chat.owner && req.user.role !== 'admin') {
-                return res.status(403).json({ error: 'Access denied' });
-            }
-        } catch(e) {}
+    let isNewId = false;
+    let assignedId = chat.id;
+
+    // Check if ID is new (e.g. timestamp from frontend)
+    if (!chat.id.startsWith('chat-') || !indexData.CACHE[chat.id]) {
+        isNewId = true;
+        assignedId = `chat-${indexData.NEXT_CHAT_ID++}`;
+        chat.id = assignedId;
     }
 
-    fs.writeFile(chatFile, JSON.stringify(chat, null, 2), (err) => {
+    const dateStr = new Date(chat.timestamp || Date.now()).toISOString().split('T')[0];
+    const filename = `${dateStr}_${assignedId}.rchat`;
+    const chatFile = path.join(userDir, filename);
+    
+    // If it already had a different filename, remove old file 
+    // (Wait, we can just let it exist or cleanup old ones, but to be safe removing old filename is good)
+    if (!isNewId && indexData.CACHE[assignedId] && indexData.CACHE[assignedId] !== filename) {
+        const oldFile = path.join(userDir, indexData.CACHE[assignedId]);
+        if (fs.existsSync(oldFile)) fs.unlinkSync(oldFile);
+    }
+    
+    indexData.CACHE[assignedId] = filename;
+
+    // Soft delete support: if it's explicitly deleted from frontend
+    // but frontend uses DELETE endpoint.
+    
+    const rchatContent = serializeRChat(chat, chat.owner);
+    
+    // Atomic write
+    const tempPath = chatFile + '.tmp';
+    fs.writeFile(tempPath, rchatContent, 'utf8', (err) => {
         if (err) return res.status(500).json({ error: 'Service temporarily unavailable' });
-        res.json({ success: true });
+        fs.renameSync(tempPath, chatFile);
+        writeChatIndex(userDir, indexData);
+        res.json({ success: true, assignedId: isNewId ? assignedId : undefined });
     });
 });
 
 app.delete('/api/chats/:id', authenticateOptional, (req, res) => {
-    const chatId = path.basename(req.params.id);
+    const requestedId = path.basename(req.params.id);
     const userEmail = req.user.email;
     
     const userDir = getUserChatDir(userEmail);
-    let chatFile = path.join(userDir, `${chatId}.json`);
+    const indexData = readChatIndex(userDir);
+    const filename = indexData.CACHE[requestedId];
     
-    if (!fs.existsSync(chatFile)) {
-        const fallbackPath = path.join(CHATS_DIR, `${chatId}.json`);
-        if (fs.existsSync(fallbackPath)) {
-            chatFile = fallbackPath;
-        } else {
-            return res.status(404).json({ error: 'Not found' });
-        }
-    }
+    if (!filename) return res.status(404).json({ error: 'Not found' });
+    const chatFile = path.join(userDir, filename);
+    if (!fs.existsSync(chatFile)) return res.status(404).json({ error: 'File not found' });
 
     try {
-        const existingData = JSON.parse(fs.readFileSync(chatFile, 'utf8'));
-        if (existingData.owner !== userEmail && req.user.role !== 'admin') {
+        const content = fs.readFileSync(chatFile, 'utf8');
+        const chat = parseRChat(content);
+        if (chat.owner !== userEmail && req.user.role !== 'admin') {
             return res.status(403).json({ error: 'Access denied' });
         }
+        
+        // SOFT DELETE
+        chat.deleted = true;
+        
+        // ensure .deleted directory
+        const delDir = path.join(userDir, '.deleted');
+        if (!fs.existsSync(delDir)) fs.mkdirSync(delDir);
+        
+        // Atomic write back to main & move
+        const newContent = serializeRChat(chat, chat.owner);
+        const delPath = path.join(delDir, filename);
+        fs.writeFileSync(delPath, newContent, 'utf8');
+        
+        // Remove from active
+        fs.unlinkSync(chatFile);
+        
+        // Optional: remove from array/cache? We keep it in cache or remove?
+        delete indexData.CACHE[requestedId];
+        writeChatIndex(userDir, indexData);
+        
     } catch(e) {
         return res.status(500).json({ error: 'Parse error' });
     }
 
-    fs.unlink(chatFile, (err) => {
-        if (err) return res.status(500).json({ error: 'Service temporarily unavailable' });
-        res.json({ success: true });
-    });
+    res.json({ success: true });
 });
 
 // --- API PROXY ENDPOINTS ---
@@ -784,34 +1001,42 @@ app.get('/api/image-proxy', async (req, res) => {
     const width = 1024, height = 1024;
     const seed = Math.floor(Math.random() * 9999999);
     
-    const primaryModel = 'flux-realism';
-    const fallbackModel = 'turbo';
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Cache-Control', 'public, max-age=31536000');
+
+    const modelsToTry = ['flux', 'flux-realism', 'turbo', 'default'];
 
     const generateUrl = (m) => `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true&model=${m}`;
 
-    try {
-        const response = await axios({
-            url: generateUrl(primaryModel),
-            method: 'GET',
-            responseType: 'stream',
-            timeout: 15000
-        });
-        res.setHeader('Content-Type', response.headers['content-type']);
-        response.data.pipe(res);
-    } catch (e) {
-        console.error("Primary image failed");
+    for (const model of modelsToTry) {
+        console.log(`[RH-IMG-3] Attempting generation with model: ${model}`);
         try {
-            const fallbackResponse = await axios({
-                url: generateUrl(fallbackModel),
+            const response = await axios({
+                url: generateUrl(model),
                 method: 'GET',
-                responseType: 'stream'
+                responseType: 'arraybuffer',
+                timeout: 20000,
+                validateStatus: null
             });
-            res.setHeader('Content-Type', fallbackResponse.headers['content-type']);
-            fallbackResponse.data.pipe(res);
-        } catch (e2) {
-            res.status(500).send('Service temporarily unavailable');
+
+            const contentType = response.headers['content-type'] || '';
+            const size = response.data ? response.data.length : 0;
+
+            if (response.status === 200 && contentType.startsWith('image/') && size > 0) {
+                console.log(`[RH-IMG-3] Success: Model ${model} | Mime: ${contentType} | Size: ${size} bytes`);
+                res.setHeader('Content-Type', contentType);
+                res.setHeader('Content-Length', size);
+                return res.send(Buffer.from(response.data));
+            } else {
+                console.log(`[RH-IMG-3] Failed with Model ${model}: Status ${response.status} | Content-Type: ${contentType} | Size: ${size}`);
+            }
+        } catch (e) {
+            console.error(`[RH-IMG-3] Error with Model ${model}:`, e.message);
         }
     }
+    
+    console.error("[RH-IMG-3] All models failed. Returning 500 Error.");
+    res.status(500).send('Service temporarily unavailable');
 });
 
 // Start the server
