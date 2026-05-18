@@ -1,0 +1,19 @@
+{
+  "id": "1779024861460",
+  "title": "Draw a futuristic city with fl",
+  "messages": [
+    {
+      "id": "1779024863358",
+      "role": "user",
+      "content": "Draw a futuristic city with flying cars",
+      "prioritized": false
+    },
+    {
+      "id": "1779024863367",
+      "role": "assistant",
+      "content": "![Generated Image](/api/image-proxy?prompt=Draw%20a%20futuristic%20city%20with%20flying%20cars%20--%20ultra-realistic%208k%2C%20cinematic%20lighting%2C%20hyper-detailed%20textures%2C%20sharp%20focus%2C%20masterpiece%20quality%2C%20realistic%20shadows%2C%20depth%20of%20field%2C%20unreal%20engine%205%20render%2C%20highly%20intricate%2C%20natural%20lighting)"
+    }
+  ],
+  "prioritized": false,
+  "owner": "guest"
+}

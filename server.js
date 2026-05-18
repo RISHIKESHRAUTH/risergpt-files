@@ -79,38 +79,65 @@ app.use(helmet({
                 "https://apis.google.com",
                 "https://accounts.google.com",
                 "https://*.firebaseapp.com",
+                "https://*.firebase.com",
                 "https://*.googleapis.com"
             ],
-            styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com", "https://www.gstatic.com"],
-            fontSrc: ["'self'", "https://fonts.gstatic.com"],
-            imgSrc: ["'self'", "data:", "blob:", "https:", "https://*.googleusercontent.com", "https://www.gstatic.com"],
+            styleSrc: [
+                "'self'", 
+                "'unsafe-inline'", 
+                "https://cdnjs.cloudflare.com", 
+                "https://fonts.googleapis.com", 
+                "https://www.gstatic.com"
+            ],
+            fontSrc: [
+                "'self'", 
+                "https://fonts.gstatic.com",
+                "data:",
+                "https://cdnjs.cloudflare.com"
+            ],
+            imgSrc: [
+                "'self'", 
+                "data:", 
+                "blob:", 
+                "https:", 
+                "https://*.googleusercontent.com", 
+                "https://www.gstatic.com",
+                "https://*.pollinations.ai"
+            ],
             connectSrc: [
                 "'self'",
                 "https://api.tavily.com",
                 "https://api.groq.com",
                 "https://api.x.ai",
+                "https://generativelanguage.googleapis.com",
                 "https://identitytoolkit.googleapis.com",
                 "https://securetoken.googleapis.com",
                 "https://apis.google.com",
                 "https://accounts.google.com",
                 "https://www.googleapis.com",
-                "https://*.firebaseapp.com",
+                "https://firebaseio.com",
                 "https://*.firebaseio.com",
                 "wss://*.firebaseio.com",
-                "https://www.gstatic.com"
+                "https://*.firebaseapp.com",
+                "https://*.firebase.com",
+                "https://*.googleapis.com",
+                "https://www.gstatic.com",
+                "https://*.gstatic.com",
+                "https://cdnjs.cloudflare.com"
             ],
             frameSrc: [
                 "'self'",
                 "https://accounts.google.com",
                 "https://apis.google.com",
-                "https://*.firebaseapp.com"
+                "https://*.firebaseapp.com",
+                "https://*.firebase.com"
             ],
             childSrc: ["'self'", "blob:", "https://*.firebaseapp.com"],
             workerSrc: ["'self'", "blob:"]
         },
     },
     crossOriginEmbedderPolicy: false,
-    crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" }
+    crossOriginOpenerPolicy: { policy: "unsafe-none" } // Changed from "same-origin-allow-popups" for better compatibility with Google Auth in some environments
 }));
 
 app.use(cookieParser());
@@ -788,6 +815,13 @@ app.get('/api/image-proxy', async (req, res) => {
 });
 
 // Start the server
+app.get('*', (req, res) => {
+    if (req.path.startsWith('/api')) {
+        return res.status(404).json({ error: 'Not Found' });
+    }
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 app.listen(PORT, () => {
     console.log(`RiserGPT Secure Server running on port ${PORT}`);
 });

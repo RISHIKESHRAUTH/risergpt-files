@@ -55,6 +55,7 @@
     <link id="highlight-theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.7/purify.min.js"></script>
     <style>
         #image-options-panel {
             background: rgba(255, 255, 255, 0.05);
@@ -93,23 +94,23 @@
         .image-gen-container {
             position: relative;
             width: 100%;
-            max-width: 800px;
-            border-radius: 24px;
+            max-width: 512px;
+            border-radius: 20px;
             overflow: hidden;
-            background: rgba(40, 40, 40, 0.4);
+            background: rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             margin: 15px 0;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             aspect-ratio: 1/1;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        .image-gen-container.landscape { aspect-ratio: 16/9; max-width: 900px; }
-        .image-gen-container.portrait { aspect-ratio: 9/16; max-width: 500px; }
-        .image-gen-container.mobile-wallpaper { aspect-ratio: 9/19.5; max-width: 450px; }
+        .image-gen-container.landscape { aspect-ratio: 16/9; max-width: 800px; }
+        .image-gen-container.portrait { aspect-ratio: 9/16; max-width: 400px; }
+        .image-gen-container.mobile-wallpaper { aspect-ratio: 9/19.5; max-width: 350px; }
         
         .image-gen-container:hover {
             transform: scale(1.01);
@@ -339,117 +340,218 @@
         /* Premium Thinking/Reasoning Block */
         .reasoning-container {
             margin: 16px 0;
-            border-radius: var(--border-radius-md);
-            background: var(--reasoning-bg);
+            border-radius: 14px;
+            background: var(--reasoning-bg, rgba(255, 255, 255, 0.03));
             border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
             overflow: hidden;
-            font-size: 0.85rem;
-            transition: all var(--transition-fast);
+            font-size: 0.88rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: blockFadeIn 0.5s ease-out;
+        }
+        @keyframes blockFadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .reasoning-header {
-            padding: 10px 14px;
+            padding: 12px 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: rgba(var(--bg-secondary-rgb), 0.3);
+            background: rgba(59, 130, 246, 0.08); /* Slightly more distinct */
             cursor: pointer;
             user-select: none;
-            transition: all var(--transition-fast);
-            color: var(--text-secondary);
+            transition: all 0.2s ease;
+            color: var(--text-primary);
+            opacity: 0.8;
             font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+        .theme-light .reasoning-header {
+            background: rgba(37, 99, 235, 0.05);
+            color: #1a56db;
+            opacity: 1;
         }
         .reasoning-header:hover {
-            background: rgba(var(--bg-secondary-rgb), 0.5);
-            color: var(--text-primary);
+            background: rgba(59, 130, 246, 0.15);
+            opacity: 1;
+        }
+        .reasoning-header .header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         .reasoning-content {
-            padding: 14px;
-            line-height: 1.6;
+            padding: 16px;
+            line-height: 1.7;
             color: var(--text-secondary);
             display: none;
             border-top: 1px solid var(--border-color);
+            background: rgba(0, 0, 0, 0.1);
+        }
+        .theme-light .reasoning-content {
+            background: rgba(0, 0, 0, 0.02);
+            color: #374151;
         }
         .reasoning-container.open .reasoning-content {
             display: block;
         }
         .reasoning-icon {
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            width: 14px;
-            height: 14px;
-            opacity: 0.5;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 16px;
+            height: 16px;
+            opacity: 0.8;
         }
-        .reasoning-container.open .reasoning-icon {
+        .reasoning-container.open .reasoning-icon.arrow {
             transform: rotate(180deg);
         }
         .reasoning-container.open {
             border-color: var(--accent-color);
-            box-shadow: var(--accent-glow);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
 
         /* Modern Code Blocks */
         .code-block-wrapper {
             position: relative;
             margin: 24px 0;
-            border-radius: var(--border-radius-md);
-            background: var(--code-bg);
+            border-radius: 12px;
+            background: var(--code-bg, #0d1117);
             border: 1px solid var(--border-color);
             overflow: hidden;
-            box-shadow: var(--shadow-premium);
-            transition: all var(--transition-fast);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
         }
         .code-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 10px 16px;
-            background: var(--code-header);
+            padding: 8px 16px;
+            background: var(--code-header, rgba(48, 54, 61, 0.5));
             border-bottom: 1px solid var(--border-color);
-            font-family: inherit;
+            font-family: 'Inter', sans-serif;
             font-size: 0.75rem;
             color: var(--text-secondary);
-            letter-spacing: 0.3px;
         }
         .code-lang-label {
             font-weight: 600;
             color: var(--text-primary);
-            text-transform: lowercase;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             opacity: 0.8;
         }
         .code-actions {
             display: flex;
-            gap: 16px;
+            gap: 12px;
         }
         .code-action-btn {
-            background: none;
-            border: none;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
             color: var(--text-secondary);
             cursor: pointer;
-            padding: 4px;
+            padding: 4px 10px;
             display: flex;
             align-items: center;
             gap: 6px;
-            transition: all var(--transition-fast);
+            transition: all 0.2s ease;
             font-size: 0.75rem;
-            border-radius: 4px;
+            border-radius: 6px;
+        }
+        .theme-light .code-action-btn {
+            background: rgba(0, 0, 0, 0.03);
         }
         .code-action-btn:hover {
             color: var(--text-primary);
-            background: rgba(var(--bg-secondary-rgb), 0.5);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-color);
         }
-        .code-action-btn svg {
-            width: 14px;
-            height: 14px;
+        .code-action-btn.copied {
+            color: #10b981 !important;
+            border-color: rgba(16, 185, 129, 0.4) !important;
+            background: rgba(16, 185, 129, 0.05);
         }
-        .code-action-btn.copied { color: #10b981; }
+        .theme-light .code-action-btn.copied {
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        /* Spacing for misaligned blocks */
+        .reasoning-container, .code-block-wrapper, .image-gen-container {
+            margin-top: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .theme-light .message.assistant .message-content {
+            color: #1a202c !important;
+            line-height: 1.6;
+        }
+        .theme-light .message-text-display {
+            color: #1a202c !important;
+        }
+        .theme-light .message.assistant .message-content p {
+            color: #2d3748 !important;
+        }
+        .theme-light .message.assistant .message-content strong {
+            color: #000000 !important;
+        }
+
+        pre {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: transparent !important;
+        }
         pre code {
-            padding: 20px !important;
-            font-size: 0.85rem !important;
+            padding: 16px 20px !important;
+            font-size: 0.88rem !important;
             line-height: 1.6 !important;
             display: block;
             overflow-x: auto;
-            background: transparent !important;
-            color: var(--code-text) !important;
-            font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
+            color: var(--code-text, #e6edf3) !important;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace !important;
+        }
+        pre code::-webkit-scrollbar {
+            height: 6px;
+        }
+        pre code::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        .theme-light pre code::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        pre code::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .theme-light pre code::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .ai-generated-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+            background: #111;
+        }
+        .ai-generated-image.loaded {
+            opacity: 1;
+        }
+        .image-gen-container::before {
+            content: 'Generating...';
+            position: absolute;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.9rem;
+            animation: pulse-op 1.5s infinite;
+            z-index: 0;
+        }
+        @keyframes pulse-op {
+            0% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+            100% { opacity: 0.3; }
+        }
+        @media (max-width: 768px) {
+            .image-gen-container {
+                max-width: 100%;
+            }
         }
 
 
@@ -1783,6 +1885,10 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebas
             signOut
         } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
 
+        // Global variables for rendering pipeline
+        let REASONING_BLOCKS = [];
+        let CODE_BLOCKS_DATA = [];
+
         const firebaseConfig = {
             apiKey: "AIzaSyBrbbG2M-WovzNF_24zDHGQwli-vfVCNoE",
             authDomain: "risergpt-fb614.firebaseapp.com",
@@ -1836,28 +1942,40 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebas
         }
 
         // Centralized Auth Listener
+        let isInitialAuthCheck = true;
         onAuthStateChanged(auth, async (user) => {
+            const hasLocalSession = !!localStorage.getItem('authToken');
+            
             if (user) {
                 console.log("Firebase User Detected:", user.email);
                 
-                // If we don't have our internal authToken or the user changed, sync
                 const localUser = JSON.parse(localStorage.getItem('risergpt_currentUser'));
-                if (!localStorage.getItem('authToken') || !localUser || localUser.email !== user.email) {
+                // Check if sync is needed: no token, no user, or email mismatch
+                if (!hasLocalSession || !localUser || localUser.email !== user.email) {
                     console.log("Syncing session with backend...");
+                    
+                    // Show a syncing overlay if it's not the initial check
                     const result = await syncWithBackend(user);
                     if (result.success) {
-                        window.location.reload(); // Refresh to catch all state changes
+                        window.location.reload(); 
                     }
                 }
             } else {
                 console.log("No Firebase User.");
-                // If we are logged in according to localStorage but not Firebase, we should log out locally
-                if (localStorage.getItem('authToken') || localStorage.getItem('risergpt_currentUser')) {
-                    console.log("Local session detected but no Firebase user. Cleaning up...");
+                // ONLY clean up if we are SURE it's not just the initial load gap
+                // We'll wait a tiny bit to see if Firebase truly means 'signed out'
+                if (!isInitialAuthCheck && hasLocalSession) {
+                    console.log("Local session detected but user signed out of Firebase. Cleaning up...");
                     localStorage.removeItem('authToken');
                     localStorage.removeItem('risergpt_currentUser');
+                    localStorage.removeItem('risergpt_guestData');
                     window.location.reload();
                 }
+            }
+            if (isInitialAuthCheck) {
+                isInitialAuthCheck = false;
+                // If we are at guest mode but have firebase user, it will sync above.
+                // If we are at guest mode and no firebase user, we stay guest.
             }
         });
 
@@ -2483,6 +2601,11 @@ const _initAppElements = () => {
     // --- ROUTING & INITIALIZATION ---
     async function initializeMainApp() {
         await loadGlobalConfig();
+
+        // Check for authenticated session to bypass landing page
+        if (localStorage.getItem('authToken')) {
+            sessionStorage.setItem('risergpt_landing_seen', 'true');
+        }
 
         if (window.location.hash === '#admin') {
             handleAdminRouting();
@@ -4563,156 +4686,203 @@ const _initAppElements = () => {
             promptInput.style.height = promptInput.scrollHeight + 'px';
         }
 
-        function formatMessageContent(text) {
-             if (!text) return '';
-             
-             let workingText = text;
-             
-             // Extract Reasoning (Think blocks)
-             const reasoningBlocks = [];
-             
-             // Handle fully closed blocks
-             workingText = workingText.replace(/<think>([\s\S]*?)<\/think>/gi, (match, content) => {
-                 reasoningBlocks.push({ content: content.trim(), closed: true });
-                 return `__REASONING_BLOCK_${reasoningBlocks.length - 1}__`;
-             });
+        // --- PROFESSIONAL RENDERING PIPELINE START ---
+        
+        const MarkdownRenderer = {
+            init() {
+                if (typeof marked !== 'undefined') {
+                    const renderer = new marked.Renderer();
+                    // Force all links to open in new tab
+                    renderer.link = (href, title, text) => {
+                        const target = 'target="_blank"';
+                        const rel = 'rel="noopener noreferrer"';
+                        return `<a href="${href}" title="${title || ''}" ${target} ${rel}>${text}</a>`;
+                    };
+                    marked.setOptions({ renderer, breaks: true, gfm: true });
+                }
+            },
+            render(text) {
+                if (!text) return '';
+                if (typeof marked !== 'undefined') {
+                    return marked.parse(text);
+                }
+                return text;
+            }
+        };
 
-             // Handle open block (if any)
-             if (workingText.includes('<think>')) {
-                 const parts = workingText.split('<think>');
-                 workingText = parts[0];
-                 const openContent = parts.slice(1).join('<think>');
-                 reasoningBlocks.push({ content: openContent.trim(), closed: false });
-                 workingText += `__REASONING_BLOCK_${reasoningBlocks.length - 1}__`;
-             }
+        const ReasoningBlock = {
+            render(content, isClosed, id) {
+                const statusText = isClosed ? 'Reasoning complete' : 'Reasoning...';
+                const isOpen = !isClosed;
+                const innerHtml = MarkdownRenderer.render(content);
+                
+                return `
+                    <div class="reasoning-container ${isOpen ? 'open' : ''}" data-block-id="${id}">
+                        <div class="reasoning-header" onclick="this.parentElement.classList.toggle('open')">
+                            <div class="header-left">
+                                <svg class="reasoning-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+                                <span>${statusText}</span>
+                            </div>
+                            <svg class="reasoning-icon arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+                        </div>
+                        <div class="reasoning-content">${innerHtml}</div>
+                    </div>
+                `;
+            }
+        };
 
-             // 1. Escape HTML first (except our internal markers)
-             let formatted = workingText.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-             
-             // Restore reasoning markers
-             formatted = formatted.replace(/__REASONING_BLOCK_(\d+)__/g, (match, idx) => `__REASONING_BLOCK_${idx}__`);
+        const CodeBlock = {
+            render(code, lang, id) {
+                const language = lang || 'plaintext';
+                const escapedCode = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                
+                return `
+                    <div class="code-block-wrapper" data-block-id="${id}">
+                        <div class="code-header">
+                            <span class="code-lang-label">${language}</span>
+                            <div class="code-actions">
+                                <button class="code-action-btn" onclick="copyCodeFromBtn(this, ${id})">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                    <span>Copy</span>
+                                </button>
+                            </div>
+                        </div>
+                        <pre><code class="language-${language} hljs">${escapedCode}</code></pre>
+                    </div>
+                `;
+            }
+        };
 
-             // 2. Extract Code Blocks and replace with placeholders
-             const codeBlocks = [];
-             formatted = formatted.replace(/```(\w*)\s*([\s\S]*?)```/g, (match, lang, code) => {
-                 codeBlocks.push({ lang: lang ? lang.trim() : 'code', code: code.trim() });
-                 return `__CODE_BLOCK_${codeBlocks.length - 1}__`;
-             });
-
-             // 2.5 Extract Images and replace with placeholders
-             const imageBlocks = [];
-             formatted = formatted.replace(/!\[(.*?)\]\((.*?)\)/g, (match, alt, url) => {
-                 imageBlocks.push({ alt, url });
-                 return `__IMAGE_BLOCK_${imageBlocks.length - 1}__`;
-             });
-
-             if (typeof marked !== 'undefined') {
-                 // Use marked if available for ChatGPT-style formatting
-                 formatted = marked.parse(formatted, { breaks: true });
-                 // Clean up <p> tags around blocks that will be replaced with <div>s
-                 formatted = formatted.replace(/<p>__IMAGE_BLOCK_(\d+)__<\/p>/g, '__IMAGE_BLOCK_$1__');
-                 formatted = formatted.replace(/<p>__REASONING_BLOCK_(\d+)__<\/p>/g, '__REASONING_BLOCK_$1__');
-                 formatted = formatted.replace(/<p>__CODE_BLOCK_(\d+)__<\/p>/g, '__CODE_BLOCK_$1__');
-             } else {
-                 formatted = formatted.replace(/`([^`]+)`/g, '<code>$1</code>');
-                 formatted = formatted.replace(/^### (.*$)/gim, '<h3>$1</h3>');
-                 formatted = formatted.replace(/^## (.*$)/gim, '<h2>$1</h2>');
-                 formatted = formatted.replace(/^# (.*$)/gim, '<h1>$1</h1>');
-                 formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                 formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
-                 formatted = formatted.replace(/^\s*-\s+(.*)/gim, '<li>$1</li>');
-                 formatted = formatted.replace(/\n/g, '<br>');
-             }
-
-             // 3. Re-inject Images
-             formatted = formatted.replace(/__IMAGE_BLOCK_(\d+)__/g, (match, idx) => {
-                 const block = imageBlocks[idx];
-                 return `
-                    <div class="image-gen-container reveal-only" data-url="${block.url}" onclick="openFullscreenViewer('${block.url}')">
-                        <img src="${block.url}" class="final-image reveal" alt="${block.alt}">
+        const ImageBlock = {
+            render(url, alt, id) {
+                return `
+                    <div class="image-gen-container" onclick="openFullscreenViewer('${url}')" data-block-id="${id}">
+                        <img src="${url}" alt="${alt}" loading="lazy" class="ai-generated-image loaded">
                         <div class="image-actions">
-                            <button class="img-action-btn copy-img" title="Copy Image" onclick="event.stopPropagation(); window.copyImageToClipboard('${block.url}')">
-                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5ZM19 21H8V7H19V21Z"/></svg>
-                            </button>
-                            <button class="img-action-btn download-img" title="Download" onclick="event.stopPropagation(); window.downloadImage('${block.url}', 'RiserGPT_Image.png')">
+                            <button class="img-action-btn download-img" onclick="event.stopPropagation(); downloadImage('${url}', 'RiserGPT_${Date.now()}.png')">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
                             </button>
-                            <button class="img-action-btn fullscreen-img" title="Full Screen" onclick="event.stopPropagation(); window.openFullscreenViewer('${block.url}')">
+                            <button class="img-action-btn fullscreen-img" onclick="event.stopPropagation(); openFullscreenViewer('${url}')">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
                             </button>
                         </div>
                     </div>
-                 `;
-             });
-
-             // 4. Re-inject Reasoning Blocks with Premium Styling
-             formatted = formatted.replace(/__REASONING_BLOCK_(\d+)__/g, (match, idx) => {
-                 const block = reasoningBlocks[idx];
-                 const isOpen = !block.closed;
-                 return `
-                    <div class="reasoning-container ${isOpen ? 'open' : ''}">
-                        <div class="reasoning-header" onclick="this.parentElement.classList.toggle('open')">
-                            <span>${isOpen ? 'RH-DEV-4 thinking...' : 'Deep Reasoning'}</span>
-                            <svg class="reasoning-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
-                        </div>
-                        <div class="reasoning-content">${block.content.replace(/\n/g, '<br>')}</div>
-                    </div>
-                 `;
-             });
-
-             // 5. Re-inject Code Blocks with Premium Styling
-             formatted = formatted.replace(/__CODE_BLOCK_(\d+)__/g, (match, idx) => {
-                 const block = codeBlocks[idx];
-                 const rawCode = block.code.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
-                 const base64Code = btoa(encodeURIComponent(rawCode));
-                 
-                 return `
-                    <div class="code-block-wrapper">
-                        <div class="code-header">
-                            <span class="code-lang-label">${block.lang || 'code'}</span>
-                            <div class="code-actions">
-                                <button class="code-action-btn copy-btn" onclick="copyCodeToClipboard(this, '${base64Code}')">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2M12 2v4M9 22H15"/></svg>
-                                    Copy
-                                </button>
-                                <button class="code-action-btn" onclick="downloadCodeFromBlock('${base64Code}', '${block.lang}')">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-                                    Save
-                                </button>
-                            </div>
-                        </div>
-                        <pre><code class="language-${block.lang} hljs">${block.code}</code></pre>
-                    </div>
-                 `;
-             });
-
-             return formatted;
-        }
-
-        // --- GLOBAL CODE HELPERS ---
-        window.copyCodeToClipboard = async (btn, base64Code) => {
-            const code = decodeURIComponent(atob(base64Code));
-            try {
-                await navigator.clipboard.writeText(code);
-                const originalHTML = btn.innerHTML;
-                btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Copied!`;
-                btn.classList.add('copied');
-                setTimeout(() => {
-                    btn.innerHTML = originalHTML;
-                    btn.classList.remove('copied');
-                }, 2000);
-            } catch (err) { console.error('Copy failed', err); }
+                `;
+            }
         };
 
-        window.downloadCodeFromBlock = (base64Code, lang) => {
-            const code = decodeURIComponent(atob(base64Code));
+        const MessageRenderer = {
+            format(text) {
+                if (!text) return '';
+                
+                // Note: We do NOT reset REASONING_BLOCKS or CODE_BLOCKS_DATA here
+                // because they are reset at the start of renderMessages() and
+                // populated across all messages in a single render cycle.
+                const tempImageBlocks = [];
+
+                let workingText = text;
+
+                // 1. Detect and Extract Blocks
+                
+                // Reasoning Blocks
+                workingText = workingText.replace(/(<think>|&lt;think&gt;)([\s\S]*?)((<\/think>|&lt;\/think&gt;)|$)/gi, (match, op, content, cl) => {
+                    const id = REASONING_BLOCKS.length;
+                    const isClosed = cl && (cl.toLowerCase().includes('think'));
+                    REASONING_BLOCKS.push({ content: content.trim(), closed: !!isClosed });
+                    return `PLACEHOLDER_REASONING_${id}`;
+                });
+
+                // Code Blocks
+                workingText = workingText.replace(/```(\w*)\s*([\s\S]*?)(```|$)/gi, (match, lang, code, end) => {
+                    const id = CODE_BLOCKS_DATA.length;
+                    const language = lang ? lang.trim() : 'plaintext';
+                    CODE_BLOCKS_DATA.push({ lang: language, code: code.trim() });
+                    return `PLACEHOLDER_CODE_${id}`;
+                });
+
+                // Image Blocks
+                workingText = workingText.replace(/!\[(.*?)\]\((.*?)\)/g, (match, alt, url) => {
+                    const id = tempImageBlocks.length;
+                    tempImageBlocks.push({ alt, url });
+                    return `PLACEHOLDER_IMAGE_${id}`;
+                });
+
+                // 2. Decode essential entities
+                workingText = workingText.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+
+                // 3. Render Markdown
+                let html = MarkdownRenderer.render(workingText);
+
+                // 4. Restore Blocks with components
+                html = html.replace(/PLACEHOLDER_REASONING_(\d+)/g, (match, id) => {
+                    const block = REASONING_BLOCKS[id];
+                    if (!block) return match;
+                    return ReasoningBlock.render(block.content, block.closed, id);
+                });
+
+                html = html.replace(/PLACEHOLDER_CODE_(\d+)/g, (match, id) => {
+                    const block = CODE_BLOCKS_DATA[id];
+                    if (!block) return match;
+                    return CodeBlock.render(block.code, block.lang, id);
+                });
+
+                html = html.replace(/PLACEHOLDER_IMAGE_(\d+)/g, (match, id) => {
+                    const block = tempImageBlocks[id];
+                    if (!block) return match;
+                    return ImageBlock.render(block.url, block.alt, id);
+                });
+
+                // 5. Sanitize if DOMPurify is available
+                if (typeof DOMPurify !== 'undefined') {
+                    return DOMPurify.sanitize(html, {
+                        ADD_ATTR: ['onclick', 'target', 'rel', 'data-block-id'],
+                        ADD_TAGS: ['svg', 'path', 'circle', 'rect']
+                    });
+                }
+
+                return html;
+            }
+        };
+
+        // Initialize Markdown Configuration
+        MarkdownRenderer.init();
+
+        function formatMessageContent(text) {
+             try {
+                 if (!text) return '';
+                 return MessageRenderer.format(text);
+             } catch (err) {
+                 console.error("Formatting error:", err);
+                 return text || '';
+             }
+        }
+
+        // Global Helpers for Interactive Blocks
+        window.copyCodeFromBtn = function(btn, index) {
+            const block = CODE_BLOCKS_DATA[index];
+            if (!block) return;
+            navigator.clipboard.writeText(block.code).then(() => {
+                const originalText = btn.querySelector('span').innerText;
+                btn.classList.add('copied');
+                btn.querySelector('span').innerText = 'Copied!';
+                setTimeout(() => {
+                    btn.classList.remove('copied');
+                    btn.querySelector('span').innerText = originalText;
+                }, 2000);
+            });
+        };
+
+        window.downloadCodeFromIdx = (index) => {
+            const block = CODE_BLOCKS_DATA[index];
+            if (!block) return;
+            const lang = block.lang || 'code';
             const extMap = { 'python': 'py', 'javascript': 'js', 'html': 'html', 'css': 'css', 'typescript': 'ts', 'java': 'java', 'cpp': 'cpp', 'c': 'c' };
             const ext = extMap[lang.toLowerCase()] || 'txt';
-            const blob = new Blob([code], { type: 'text/plain' });
+            const blob = new Blob([block.code], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `risergpt_code.${ext}`;
+            a.download = `risergpt_${lang}_${Date.now()}.${ext}`;
             a.click();
             URL.revokeObjectURL(url);
         };
@@ -5123,11 +5293,18 @@ const _initAppElements = () => {
         }
 
         function renderMessages() {
-            chatMessages.innerHTML = '';
-            const chat = findChatById(currentChatId);
-            if (!chat) return;
+            try {
+                chatMessages.innerHTML = '';
+                
+                // Reset block storage for this render cycle
+                REASONING_BLOCKS = [];
+                CODE_BLOCKS_DATA = [];
 
-            chat.messages.forEach(msg => {
+                const chat = findChatById(currentChatId);
+                if (!chat) return;
+
+                chat.messages.forEach(msg => {
+                    try {
                 const msgDiv = document.createElement('div');
                 msgDiv.className = `message ${msg.role} ${msg.prioritized ? 'prioritized' : ''}`;
                 msgDiv.dataset.id = msg.id;
@@ -5184,7 +5361,10 @@ const _initAppElements = () => {
                 const aiAvatar = `<img src="logo.png" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
                 msgDiv.innerHTML = `<div class="message-avatar">${msg.role === 'user' ? 'YOU' : aiAvatar}</div><div class="message-content">${contentHtml}</div>`;
                 chatMessages.appendChild(msgDiv);
-            });
+                    } catch (mErr) {
+                        console.error("Error rendering individual message:", mErr);
+                    }
+                });
             
             chatMessages.scrollTop = chatMessages.scrollHeight;
             
@@ -5192,6 +5372,9 @@ const _initAppElements = () => {
             document.querySelectorAll('pre code').forEach((block) => {
                 hljs.highlightElement(block);
             });
+            } catch (err) {
+                console.error("Critical error in renderMessages:", err);
+            }
         }
 
         function renderPrioritizedView() {
@@ -5448,6 +5631,11 @@ const _initAppElements = () => {
             fullscreenViewer.onclick = (e) => {
                 if(e.target === fullscreenViewer && viewerClose) viewerClose.onclick();
             };
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && fullscreenViewer.style.display === 'flex') {
+                    if (viewerClose) viewerClose.onclick();
+                }
+            });
         }
         
         window.copyImageToClipboard = copyImageToClipboard;

@@ -20,10 +20,6 @@ function validateEmail(email) {
         return { valid: false, error: 'Disposable email addresses are not allowed' };
     }
 
-    if (domain !== 'gmail.com') {
-        return { valid: false, error: 'Only @gmail.com addresses are currently supported' };
-    }
-
     return { valid: true };
 }
 
