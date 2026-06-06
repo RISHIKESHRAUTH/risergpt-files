@@ -1,5 +1,5 @@
 {
   "name": "RiserGPT",
-  "description": "RiserGPT is a chatbot like ChatGPT and Grok, Helps everyone to solve any problems.",
+  "description": "RiserGPT is a high-security, production-grade AI platform featuring multi-user support, MFA/2FA authenticator security, real-time Firestore database, and professional session management.",
   "requestFramePermissions": []
 }

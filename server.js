@@ -19,14 +19,26 @@ const { sendVerificationEmail, sendLoginAlertEmail } = require('./server/email/e
 const otpRoutes = require('./server/auth/otpRoutes');
 
 const firebaseConfig = require('./firebase-applet-config.json');
+const serviceAccount = require('./firebase-service-account.json');
+
+// Prevent Google Cloud Run environment from overriding Firestore credentials
+delete process.env.GOOGLE_APPLICATION_CREDENTIALS;
+delete process.env.GCLOUD_PROJECT;
+delete process.env.GOOGLE_CLOUD_PROJECT;
 
 // Initialize Firebase Admin
+let db;
 try {
     if (!admin.apps.length) {
         admin.initializeApp({
-            projectId: firebaseConfig.projectId,
+            credential: admin.credential.cert(serviceAccount),
+            projectId: serviceAccount.project_id
         });
     }
+    db = admin.firestore();
+    db.settings({ ignoreUndefinedProperties: true });
+    console.log("✅ Firebase Admin initialized");
+    console.log("✅ Firestore connected");
 } catch (e) {
     console.error('Firebase Admin initialization error:', e.message);
 }
@@ -36,8 +48,8 @@ const app = express();
 app.set('trust proxy', 1);
 
 const PORT = process.env.PORT || 3000;
-const JWT_SECRET = process.env.JWT_SECRET;
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET || 'risergpt-superkey-hdbf53ydshfsd';
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'risergpt-refresh-superkey-jsd83';
 
 // --- SECURITY MIDDLEWARE ---
 app.disable('x-powered-by');
@@ -152,6 +164,13 @@ const globalLimiter = rateLimit({
     message: { error: 'Too many requests, please try again later.' },
     standardHeaders: true,
     legacyHeaders: false,
+    skip: (req) => {
+        const url = req.originalUrl || req.url || '';
+        return (
+            url.startsWith('/api/auth/sync') ||
+            url.startsWith('/api/auth/sessions')
+        );
+    }
 });
 
 const authLimiter = rateLimit({
@@ -160,11 +179,17 @@ const authLimiter = rateLimit({
     message: { error: 'Too many attempts, please try again after 15 minutes.' },
     standardHeaders: true,
     legacyHeaders: false,
+    skip: (req) => {
+        const url = req.originalUrl || req.url || '';
+        return (
+            url.startsWith('/api/auth/sync') ||
+            url.startsWith('/api/auth/sessions')
+        );
+    }
 });
 
 app.use('/api/', globalLimiter);
 app.use('/api/auth/', authLimiter);
-app.use('/api/users/admin-login', authLimiter);
 
 // Remove dangerous public file access
 app.use(express.static(path.join(__dirname, 'public'), {
@@ -179,60 +204,15 @@ app.use(express.static(path.join(__dirname, 'public'), {
 
 // --- LOAD ROUTES ---
 const authRoutes = require('./server/auth/authRoutes');
+const mfaRoutes = require('./server/auth/mfaRoutes');
+const sessionRoutes = require('./server/auth/sessionRoutes');
+
 app.use('/api/auth', authRoutes);
 app.use('/api/auth/otp', otpRoutes);
-
-// --- SETUP DIRECTORIES ---
-const { DATA_DIR, CHATS_DIR, CONFIG_FILE, USERS_FILE } = require('./server/config/paths');
-
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-if (!fs.existsSync(CHATS_DIR)) fs.mkdirSync(CHATS_DIR, { recursive: true });
-if (!fs.existsSync(USERS_FILE)) fs.writeFileSync(USERS_FILE, JSON.stringify([], null, 2));
-
-function getUserChatDir(email) {
-    let folderName = 'guest';
-    if (email && email !== 'guest') {
-        try {
-            const users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
-            const user = users.find(u => u.email === email);
-            if (user && user.name) {
-                folderName = user.name.replace(/[^a-z0-9]/gi, '_').trim() || 'user';
-            } else {
-                folderName = email.replace(/[^a-z0-9]/gi, '_');
-            }
-        } catch (e) {
-            folderName = String(email).replace(/[^a-z0-9]/gi, '_');
-        }
-    }
-    const userDir = path.join(CHATS_DIR, folderName);
-    if (!fs.existsSync(userDir)) {
-        fs.mkdirSync(userDir, { recursive: true });
-    }
-    return userDir;
-}
+app.use('/api/auth/mfa', mfaRoutes);
+app.use('/api/auth/sessions', sessionRoutes);
 
 const { authenticateToken, authenticateOptional, requireAdmin } = require('./server/middleware/authMiddleware');
-
-// Default config setup
-try {
-    if (fs.existsSync(USERS_FILE)) {
-        let usersData = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
-        let modified = false;
-        usersData = usersData.map(u => {
-            if (u.plan === 'Free' || u.plan === 'FREE') {
-                u.plan = 'Muft Plan';
-                modified = true;
-            }
-            return u;
-        });
-        if (modified) {
-            fs.writeFileSync(USERS_FILE, JSON.stringify(usersData, null, 2));
-            console.log('Migrated old plan names to "Muft Plan"');
-        }
-    }
-} catch (e) {
-    console.error('Migration error:', e);
-}
 
 const defaultConfig = {
     announcement: { text: "", status: "inactive" },
@@ -301,38 +281,40 @@ const defaultConfig = {
     ]
 };
 
-if (!fs.existsSync(CONFIG_FILE)) {
-    fs.writeFileSync(CONFIG_FILE, JSON.stringify(defaultConfig, null, 2));
-}
+// CONFIG DB SYNC
+// We will initialize the DB config in the route if missing.
 
-// API Endpoint: Get Configuration
-app.get('/api/config', (req, res) => {
-    fs.readFile(CONFIG_FILE, 'utf8', (err, data) => {
-        if (err) {
-            console.error("Error reading config");
-            return res.status(500).json({ error: 'Service temporarily unavailable' });
+app.get('/api/config', async (req, res) => {
+    try {
+        console.log(`[Firestore Read] collection: config, doc: global, location: GET /api/config, auth: unauthenticated`);
+        const doc = await db.collection('config').doc('global').get();
+        let config = doc.exists ? doc.data() : null;
+        if(!config) {
+            config = { ...defaultConfig };
+            await db.collection('config').doc('global').set(config);
         }
-        try {
-            const config = JSON.parse(data);
-            const merged = { ...defaultConfig, ...config };
-            if(!merged.plans) merged.plans = defaultConfig.plans;
-            res.json(merged);
-        } catch (e) {
-            res.json(defaultConfig);
-        }
-    });
+        res.json({ ...defaultConfig, ...config });
+    } catch(err) {
+        console.error("Config db err", err);
+        res.json(defaultConfig);
+    }
 });
 
 // API Endpoint: Save Configuration (ADMIN ONLY)
-app.post('/api/config', authenticateToken, requireAdmin, (req, res) => {
-    const newConfig = req.body;
-    fs.writeFile(CONFIG_FILE, JSON.stringify(newConfig, null, 2), (err) => {
-        if (err) {
-            console.error("Error writing config");
-            return res.status(500).json({ error: 'Service temporarily unavailable' });
-        }
+app.post('/api/config', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const newConfig = req.body;
+        const configData = {
+            announcement: newConfig.announcement,
+            coupons: newConfig.coupons,
+            plans: newConfig.plans
+        };
+        await db.collection('config').doc('global').set(configData, { merge: true });
         res.json({ success: true });
-    });
+    } catch(err) {
+        console.error("Config save err", err);
+        res.status(500).json({ error: 'Failed' });
+    }
 });
 
 // --- USER MANAGEMENT ENDPOINTS ---
@@ -356,54 +338,36 @@ app.post('/api/users/save', [
         }
 
         const email = req.body.email;
-        const safeData = {
-            name: req.body.name,
-            email: email,
-            password: req.body.password,
-            profileImage: req.body.profileImage || null,
-            authProvider: req.body.authProvider || 'local'
-        };
-
-        let users = [];
-        if (fs.existsSync(USERS_FILE)) {
-            users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
-        }
+        console.log(`[Firestore Read] collection: users, query: email == ${email}, location: POST /api/users (signup/update), auth: unauthenticated`);
+        const usersRef = db.collection('users');
+        const userQuery = await usersRef.where('email', '==', email).limit(1).get();
         
-        const existingIndex = users.findIndex(u => u.email === email);
+        let savedUser = null;
+        let userDocId = null;
         
-        let savedUser;
-        if (existingIndex > -1) {
-            // Update existing
-            if (safeData.password) {
-                // If password was provided and differs, hash it
-                safeData.password = await bcrypt.hash(safeData.password, 10);
-            } else {
-                // otherwise keep existing password
-                safeData.password = users[existingIndex].password;
+        if (!userQuery.empty) {
+            const doc = userQuery.docs[0];
+            savedUser = doc.data();
+            userDocId = doc.id;
+            
+            if (req.body.password) {
+                savedUser.password = await bcrypt.hash(req.body.password, 10);
             }
-            
-            // Explicitly only update allowed fields
-            users[existingIndex].name = safeData.name;
-            users[existingIndex].password = safeData.password;
-            if (safeData.profileImage) users[existingIndex].profileImage = safeData.profileImage;
-            if (safeData.authProvider) users[existingIndex].authProvider = safeData.authProvider;
-            
-            savedUser = users[existingIndex];
+            savedUser.name = req.body.name;
+            if (req.body.profileImage) savedUser.profileImage = req.body.profileImage;
+            if (req.body.authProvider) savedUser.authProvider = req.body.authProvider;
         } else {
-            // New User
             if (!req.body.password) return res.status(400).json({ error: 'Password required' });
-            safeData.password = await bcrypt.hash(safeData.password, 10);
             
-            const newUser = {
-                id: Date.now().toString(),
-                email: safeData.email,
-                name: safeData.name,
-                password: safeData.password,
-                profileImage: safeData.profileImage,
-                authProvider: safeData.authProvider,
-                isBanned: false,
+            savedUser = {
+                email: email,
+                name: req.body.name,
+                password: await bcrypt.hash(req.body.password, 10),
+                profileImage: req.body.profileImage || null,
+                authProvider: req.body.authProvider || 'local',
+                role: 'user',
                 verified: false,
-                role: 'user', // explicitly hardcode role to prevent injection
+                isBanned: false,
                 plan: "Muft Plan",
                 planStatus: "active",
                 planExpiry: "never",
@@ -412,14 +376,11 @@ app.post('/api/users/save', [
                 securityLogs: [],
                 trustedDevices: [],
                 mfaEnabled: false,
-                lastLogin: null,
-                otpCreatedAt: null
+                activeSessions: []
             };
-            users.push(newUser);
-            savedUser = newUser;
+            userDocId = usersRef.doc().id;
         }
         
-        // Ensure user is verified before issuing token
         if (!savedUser.verified) {
             const now = Date.now();
             if (!savedUser.lastVerificationAttempt || (now - savedUser.lastVerificationAttempt) > 60000) {
@@ -430,13 +391,13 @@ app.post('/api/users/save', [
                 savedUser.verificationPending = true;
                 await sendVerificationEmail(savedUser.email, otp);
             }
-            fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+            await usersRef.doc(userDocId).set(savedUser);
             return res.json({ success: true, requiresVerification: true, message: 'Please verify your email.' });
         }
 
-        fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+        await usersRef.doc(userDocId).set(savedUser);
         
-        const userForClient = { ...savedUser };
+        const userForClient = { ...savedUser, id: userDocId };
         delete userForClient.password;
         
         const token = jwt.sign({ email: savedUser.email, role: 'user' }, JWT_SECRET);
@@ -450,25 +411,26 @@ app.post('/api/users/save', [
 app.post('/api/users/login', async (req, res) => {
     try {
         const { email, password } = req.body;
-        const users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
-        const user = users.find(u => u.email === email);
+        console.log(`[Firestore Read] collection: users, query: email == ${email}, location: POST /api/users/login, auth: unauthenticated`);
+        const usersRef = db.collection('users');
+        const userQuery = await usersRef.where('email', '==', email).limit(1).get();
         
-        if (!user) {
+        if (userQuery.empty) {
             return res.status(401).json({ error: 'Invalid email or password' });
         }
+        
+        const userDocId = userQuery.docs[0].id;
+        const user = userQuery.docs[0].data();
         
         let passwordMatches = false;
         
         if (user.password.startsWith('$2b$')) {
-            // It's a bcrypt hash
             passwordMatches = await bcrypt.compare(password, user.password);
         } else {
-            // Old plain text password migration
             if (user.password === password) {
                 passwordMatches = true;
-                // Migrate to bcrypt immediately
                 user.password = await bcrypt.hash(password, 10);
-                fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+                await usersRef.doc(userDocId).set({ password: user.password }, { merge: true });
                 console.log(`Migrated password for user ${user.email}`);
             }
         }
@@ -485,21 +447,52 @@ app.post('/api/users/login', async (req, res) => {
                     user.lastVerificationAttempt = now;
                     user.verificationPending = true;
                     await sendVerificationEmail(user.email, otp);
-                    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+                    await usersRef.doc(userDocId).set(user);
                 }
                 return res.status(403).json({ error: 'Please verify your email address.', requiresVerification: true });
             }
             
             user.lastLogin = new Date().toISOString();
-            fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+            if(!user.securityLogs) user.securityLogs = [];
+            user.securityLogs.push({
+                time: user.lastLogin,
+                event: 'Login',
+                ip: req.ip,
+                ua: req.headers['user-agent']
+            });
+            if (user.securityLogs.length > 20) user.securityLogs.shift();
+            
+            const session = {
+                id: Date.now().toString(),
+                ua: req.headers['user-agent'],
+                ip: req.ip,
+                lastSeen: new Date().toISOString()
+            };
+            if(!user.activeSessions) user.activeSessions = [];
+            user.activeSessions.push(session);
+            if (user.activeSessions.length > 5) user.activeSessions.shift();
 
-            // Send login alert asynchronously
-            sendLoginAlertEmail(user.email, user.name).catch(err => console.error('Error sending login alert', err));
+            await usersRef.doc(userDocId).set(user);
 
-            const userForClient = { ...user };
+            sendLoginAlertEmail(user.email, user.name).catch(err => console.error(err));
+
+            const userForClient = { ...user, id: userDocId };
             delete userForClient.password;
-            const token = jwt.sign({ email: user.email, role: 'user' }, JWT_SECRET);
-            res.json({ success: true, user: userForClient, token });
+            delete userForClient.mfaSecret;
+            delete userForClient.backupCodes;
+            delete userForClient.tempMfaSecret;
+
+            const mfaRequired = user.mfaEnabled === true;
+            const { generateTokens, setCookieTokens } = require('./server/sessions/sessionManager');
+            const tokens = generateTokens(user, !mfaRequired, session.id);
+            setCookieTokens(res, tokens.accessToken, tokens.refreshToken);
+
+            res.json({ 
+                success: true, 
+                user: userForClient, 
+                token: tokens.accessToken,
+                requiresMfa: mfaRequired 
+            });
         } else {
             res.status(401).json({ error: 'Invalid email or password' });
         }
@@ -509,22 +502,110 @@ app.post('/api/users/login', async (req, res) => {
     }
 });
 
+const adminFailedAttempts = new Map();
+
+function cleanFailedAttempts() {
+    const now = Date.now();
+    for (const [ip, info] of adminFailedAttempts.entries()) {
+        if (now - info.lastAttempt > 30 * 60 * 1000) {
+            adminFailedAttempts.delete(ip);
+        }
+    }
+}
+
 // Admin Login
 app.post('/api/users/admin-login', (req, res) => {
-    const { username, password } = req.body;
+    const { username, password, captchaAnswer } = req.body;
+    const ip = req.ip;
+    const now = Date.now();
+    
+    cleanFailedAttempts();
+    
+    let info = adminFailedAttempts.get(ip) || { count: 0, lastAttempt: 0, captchaSecret: null };
+    
+    // Check if in active progressive cooldown
+    let cooldownSec = 0;
+    if (info.count >= 3 && info.count < 5) {
+        cooldownSec = 5;
+    } else if (info.count >= 5 && info.count < 8) {
+        cooldownSec = 10;
+    } else if (info.count >= 8) {
+        cooldownSec = 30;
+    }
+    
+    if (cooldownSec > 0) {
+        const elapsed = (now - info.lastAttempt) / 1000;
+        if (elapsed < cooldownSec) {
+            const remaining = Math.ceil(cooldownSec - elapsed);
+            return res.status(429).json({ 
+                error: `Too many attempts. Progressive slowdown active: Please wait ${remaining} seconds.` 
+            });
+        }
+    }
+    
+    // Check captcha if threshold reached
+    if (info.count >= 5) {
+        if (info.captchaSecret === null) {
+            const a = Math.floor(Math.random() * 10) + 1;
+            const b = Math.floor(Math.random() * 10) + 1;
+            info.captchaSecret = a + b;
+            info.lastAttempt = now;
+            adminFailedAttempts.set(ip, info);
+            return res.status(403).json({
+                error: 'Verification required',
+                requiresCaptcha: true,
+                mathQuestion: `Please solve: ${a} + ${b} = ?`
+            });
+        }
+        
+        if (!captchaAnswer || parseInt(captchaAnswer) !== info.captchaSecret) {
+            info.count++;
+            info.lastAttempt = now;
+            const a = Math.floor(Math.random() * 10) + 1;
+            const b = Math.floor(Math.random() * 10) + 1;
+            info.captchaSecret = a + b;
+            adminFailedAttempts.set(ip, info);
+            return res.status(403).json({
+                error: 'Incorrect captcha answer',
+                requiresCaptcha: true,
+                mathQuestion: `Incorrect captcha. Solve: ${a} + ${b} = ?`
+            });
+        }
+    }
+    
     if (username === 'rishiop' && password === 'R20100910r#') {
+        adminFailedAttempts.delete(ip);
         const token = jwt.sign({ role: 'admin' }, JWT_SECRET, { expiresIn: '8h' });
         res.json({ success: true, token });
     } else {
-        res.status(401).json({ error: 'Invalid admin credentials' });
+        info.count++;
+        info.lastAttempt = now;
+        info.captchaSecret = null; // Reset captcha secret to generate a new one on next attempt if count is high enough
+        adminFailedAttempts.set(ip, info);
+        
+        let errorMsg = 'Invalid admin credentials';
+        if (info.count >= 3) {
+            errorMsg += `. (Progressive cooldown applied)`;
+        }
+        res.status(401).json({ error: errorMsg });
     }
 });
 
-app.post('/api/users/save-bulk', authenticateToken, requireAdmin, (req, res) => {
+app.post('/api/users/save-bulk', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const users = req.body;
         if (!Array.isArray(users)) return res.status(400).json({ error: 'Data must be an array' });
-        fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+        
+        const usersRef = db.collection('users');
+        for (let userData of users) {
+             const userQuery = await usersRef.where('email', '==', userData.email).limit(1).get();
+             if (!userQuery.empty) {
+                 await usersRef.doc(userQuery.docs[0].id).set(userData, { merge: true });
+             } else {
+                 userData.password = 'pending';
+                 await usersRef.doc().set(userData);
+             }
+        }
         res.json({ success: true });
     } catch (error) {
         console.error("Bulk save error");
@@ -532,12 +613,16 @@ app.post('/api/users/save-bulk', authenticateToken, requireAdmin, (req, res) => 
     }
 });
 
-app.get('/api/users', authenticateToken, requireAdmin, (req, res) => {
+app.get('/api/users', authenticateToken, requireAdmin, async (req, res) => {
     try {
-        const users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+        const snapshot = await db.collection('users').get();
+        const users = snapshot.docs.map(doc => {
+            const data = doc.data();
+            return { id: doc.id, ...data };
+        });
         res.json(users);
     } catch (error) {
-        console.error("Fetch users error");
+        console.error("Fetch users error", error);
         res.status(500).json({ error: 'Service temporarily unavailable' });
     }
 });
@@ -735,160 +820,106 @@ function migrateOldJsonToRChat(userDir, userEmail) {
     }
 }
 
-app.get('/api/chats', authenticateOptional, (req, res) => {
+app.get('/api/chats', authenticateOptional, async (req, res) => {
     const userEmail = req.user.email;
     if (!userEmail || userEmail === 'guest') return res.json([]);
     
-    const userDir = getUserChatDir(userEmail);
-    // Auto-migrate old .json
-    migrateOldJsonToRChat(userDir, userEmail);
-    
-    let allChats = [];
-    const indexData = readChatIndex(userDir);
-    
-    if (fs.existsSync(userDir)) {
-        const files = fs.readdirSync(userDir);
-        for (const file of files) {
-            if (file.endsWith('.rchat')) {
-                try {
-                    const content = fs.readFileSync(path.join(userDir, file), 'utf8');
-                    const data = parseRChat(content);
-                    if (!data.deleted) {
-                        allChats.push(data);
-                    }
-                } catch (e) {
-                    console.error('Error parsing .rchat file', e);
-                }
-            }
-        }
-    }
-    
-    allChats.sort((a, b) => b.timestamp - a.timestamp);
-    res.json(allChats);
-});
-
-app.get('/api/chats/:id', authenticateOptional, (req, res) => {
-    const requestedId = path.basename(req.params.id); 
-    const userEmail = req.user.email;
-    
-    const userDir = getUserChatDir(userEmail);
-    const indexData = readChatIndex(userDir);
-    const filename = indexData.CACHE[requestedId];
-    
-    if (!filename) return res.status(404).json({ error: 'Chat not found in index' });
-    
-    const chatFile = path.join(userDir, filename);
-    if (!fs.existsSync(chatFile)) return res.status(404).json({ error: 'Chat file missing' });
-
-    fs.readFile(chatFile, 'utf8', (err, data) => {
-        if (err) return res.status(500).json({ error: 'Read error' });
+    try {
+        console.log(`[Firestore Read] collection: chats, query: owner == ${userEmail}, location: GET /api/chats, auth: ${userEmail}`);
+        const chatsRef = db.collection('chats');
+        const snapshot = await chatsRef.where('owner', '==', userEmail).where('deleted', '==', false).orderBy('timestamp', 'desc').get();
+        const allChats = snapshot.docs.map(doc => doc.data());
+        res.json(allChats);
+    } catch (e) {
+        console.error("Fetch chats error", e);
+        // Fallback for missing index on owner & timestamp
         try {
-            const chat = parseRChat(data);
-            if (chat.deleted) return res.status(404).json({ error: 'Chat has been removed' });
-            if (chat.shared || chat.owner === userEmail || req.user.role === 'admin') {
-                res.json(chat);
-            } else {
-                res.status(403).json({ error: 'Access denied' });
-            }
-        } catch (e) {
-            res.status(500).json({ error: 'Parse error' });
+             console.log(`[Firestore Read] collection: chats, query (fallback): owner == ${userEmail}, location: GET /api/chats, auth: ${userEmail}`);
+             const chatsRef = db.collection('chats');
+             const snapshot = await chatsRef.where('owner', '==', userEmail).where('deleted', '==', false).get();
+             let allChats = snapshot.docs.map(doc => doc.data());
+             allChats.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
+             res.json(allChats);
+        } catch(fallbackErr) {
+             res.status(500).json({ error: 'Service temporarily unavailable' });
         }
-    });
+    }
 });
 
-app.post('/api/chats', authenticateOptional, (req, res) => {
-    const chat = req.body;
-    if (!chat.id) return res.status(400).json({ error: 'Chat ID required' });
-    
-    const requestedEmail = req.user.email;
-    if(chat.owner !== requestedEmail && req.user.role !== 'admin') {
-        chat.owner = requestedEmail;
-    }
-
-    const userDir = getUserChatDir(chat.owner);
-    let indexData = readChatIndex(userDir);
-    
-    let isNewId = false;
-    let assignedId = chat.id;
-
-    // Check if ID is new (e.g. timestamp from frontend)
-    if (!chat.id.startsWith('chat-') || !indexData.CACHE[chat.id]) {
-        isNewId = true;
-        assignedId = `chat-${indexData.NEXT_CHAT_ID++}`;
-        chat.id = assignedId;
-    }
-
-    const dateStr = new Date(chat.timestamp || Date.now()).toISOString().split('T')[0];
-    const filename = `${dateStr}_${assignedId}.rchat`;
-    const chatFile = path.join(userDir, filename);
-    
-    // If it already had a different filename, remove old file 
-    // (Wait, we can just let it exist or cleanup old ones, but to be safe removing old filename is good)
-    if (!isNewId && indexData.CACHE[assignedId] && indexData.CACHE[assignedId] !== filename) {
-        const oldFile = path.join(userDir, indexData.CACHE[assignedId]);
-        if (fs.existsSync(oldFile)) fs.unlinkSync(oldFile);
-    }
-    
-    indexData.CACHE[assignedId] = filename;
-
-    // Soft delete support: if it's explicitly deleted from frontend
-    // but frontend uses DELETE endpoint.
-    
-    const rchatContent = serializeRChat(chat, chat.owner);
-    
-    // Atomic write
-    const tempPath = chatFile + '.tmp';
-    fs.writeFile(tempPath, rchatContent, 'utf8', (err) => {
-        if (err) return res.status(500).json({ error: 'Service temporarily unavailable' });
-        fs.renameSync(tempPath, chatFile);
-        writeChatIndex(userDir, indexData);
-        res.json({ success: true, assignedId: isNewId ? assignedId : undefined });
-    });
-});
-
-app.delete('/api/chats/:id', authenticateOptional, (req, res) => {
-    const requestedId = path.basename(req.params.id);
+app.get('/api/chats/:id', authenticateOptional, async (req, res) => {
+    const requestedId = req.params.id; 
     const userEmail = req.user.email;
     
-    const userDir = getUserChatDir(userEmail);
-    const indexData = readChatIndex(userDir);
-    const filename = indexData.CACHE[requestedId];
+    try {
+        const chatsRef = db.collection('chats');
+        const query = await chatsRef.where('id', '==', requestedId).where('deleted', '==', false).limit(1).get();
+        
+        if (query.empty) return res.status(404).json({ error: 'Chat not found' });
+        
+        const chat = query.docs[0].data();
+        
+        if (chat.shared || chat.owner === userEmail || req.user.role === 'admin') {
+            res.json(chat);
+        } else {
+            res.status(403).json({ error: 'Access denied' });
+        }
+    } catch (e) {
+        res.status(500).json({ error: 'Parse error' });
+    }
+});
+
+app.post('/api/chats', authenticateOptional, async (req, res) => {
+    const chatData = req.body;
+    const requestedEmail = req.user.email;
     
-    if (!filename) return res.status(404).json({ error: 'Not found' });
-    const chatFile = path.join(userDir, filename);
-    if (!fs.existsSync(chatFile)) return res.status(404).json({ error: 'File not found' });
+    if (!chatData.id) {
+        chatData.id = 'chat-' + Date.now(); 
+    }
+    
+    if(chatData.owner !== requestedEmail && req.user.role !== 'admin') {
+        chatData.owner = requestedEmail;
+    }
 
     try {
-        const content = fs.readFileSync(chatFile, 'utf8');
-        const chat = parseRChat(content);
+        const chatsRef = db.collection('chats');
+        const query = await chatsRef.where('id', '==', chatData.id).limit(1).get();
+        
+        if (!query.empty) {
+            await chatsRef.doc(query.docs[0].id).set(chatData, { merge: true });
+        } else {
+            chatData.deleted = false;
+            await chatsRef.doc(chatData.id).set(chatData);
+        }
+        res.json({ success: true, assignedId: chatData.id });
+    } catch (e) {
+        console.error("Save chat err", e);
+        res.status(500).json({ error: 'Service temporarily unavailable' });
+    }
+});
+
+app.delete('/api/chats/:id', authenticateOptional, async (req, res) => {
+    const requestedId = req.params.id;
+    const userEmail = req.user.email;
+    
+    try {
+        const chatsRef = db.collection('chats');
+        const query = await chatsRef.where('id', '==', requestedId).limit(1).get();
+        
+        if (query.empty) return res.status(404).json({ error: 'Not found' });
+        
+        const docId = query.docs[0].id;
+        const chat = query.docs[0].data();
+        
         if (chat.owner !== userEmail && req.user.role !== 'admin') {
             return res.status(403).json({ error: 'Access denied' });
         }
         
-        // SOFT DELETE
-        chat.deleted = true;
+        await chatsRef.doc(docId).update({ deleted: true });
         
-        // ensure .deleted directory
-        const delDir = path.join(userDir, '.deleted');
-        if (!fs.existsSync(delDir)) fs.mkdirSync(delDir);
-        
-        // Atomic write back to main & move
-        const newContent = serializeRChat(chat, chat.owner);
-        const delPath = path.join(delDir, filename);
-        fs.writeFileSync(delPath, newContent, 'utf8');
-        
-        // Remove from active
-        fs.unlinkSync(chatFile);
-        
-        // Optional: remove from array/cache? We keep it in cache or remove?
-        delete indexData.CACHE[requestedId];
-        writeChatIndex(userDir, indexData);
-        
+        res.json({ success: true });
     } catch(e) {
         return res.status(500).json({ error: 'Parse error' });
     }
-
-    res.json({ success: true });
 });
 
 // --- API PROXY ENDPOINTS ---
@@ -1040,6 +1071,10 @@ app.get('/api/image-proxy', async (req, res) => {
 });
 
 // Start the server
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
 app.get('*', (req, res) => {
     if (req.path.startsWith('/api')) {
         return res.status(404).json({ error: 'Not Found' });

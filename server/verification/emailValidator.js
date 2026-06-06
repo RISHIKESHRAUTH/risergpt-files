@@ -1,7 +1,9 @@
 const disposableDomains = [
     'tempmail.com', '10minutemail.com', 'guerrillamail.com', 'yopmail.com', 
     'mailinator.com', 'throwawaymail.com', 'dispostable.com', 'temp-mail.org',
-    'fakeinbox.com', 'sharklasers.com'
+    'fakeinbox.com', 'sharklasers.com', 'maildrop.cc', 'getnada.com',
+    'mohmal.com', 'mail-fake.com', 'luxusmail.org', 'tempmail.net',
+    'temp-mail.io', 'mailnesia.com', 'generator.email', 'anonymousemail.me'
 ];
 
 function validateEmail(email) {
@@ -16,8 +18,13 @@ function validateEmail(email) {
         return { valid: false, error: 'Invalid email format' };
     }
 
+    // Gmail Only Enforcement
+    if (domain !== 'gmail.com') {
+        return { valid: false, error: 'Only @gmail.com addresses are permitted for registration.' };
+    }
+
     if (disposableDomains.includes(domain)) {
-        return { valid: false, error: 'Disposable email addresses are not allowed' };
+        return { valid: false, error: 'Disposable email addresses are strictly prohibited.' };
     }
 
     return { valid: true };

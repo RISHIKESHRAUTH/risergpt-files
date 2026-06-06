@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>Admin Control Panel - RiserGPT</title>
+    <!-- Use existing styles exactly -->
+    <link rel="stylesheet" href="index.css?v=12.0">
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="icon" href="logo.png" type="image/png">
+</head>
+<body class="admin-body">
+
+    <!-- Admin Panel Login Screen -->
+    <div id="admin-login-screen">
+         <div class="auth-container">
+            <h1 id="admin-login-title" class="auth-title">Admin Panel</h1>
+            <p class="auth-subtitle">Please sign in to continue</p>
+            <div id="admin-error-message" class="auth-error"></div>
+            <form id="admin-login-form" class="auth-form">
+                <div class="input-group">
+                    <label for="admin-username">Username</label>
+                    <input type="text" id="admin-username" required autocomplete="username">
+                </div>
+                <div class="input-group">
+                    <label for="admin-password">Password</label>
+                    <input type="password" id="admin-password" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="auth-btn">
+                    <span class="btn-text">Sign In</span>
+                    <span class="btn-spinner hidden"></span>
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Admin Panel Dashboard -->
+    <div id="admin-panel">
+        <header class="admin-header">
+            <h1>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><path d="M12 1L21.5 6.5V17.5L12 23L2.5 17.5V6.5L12 1ZM12 3.311L4.5 7.653V16.347L12 20.689L19.5 16.347V7.653L12 3.311ZM12 16C9.79086 16 8 14.2091 8 12C8 9.79086 9.79086 8 12 8C14.2091 8 16 9.79086 16 12C16 14.2091 14.2091 16 12 16ZM12 14C13.1046 14 14 13.1046 14 12C14 10.8954 13.1046 10 12 10C10.8954 10 10 10.8954 10 12C10 13.1046 10.8954 14 12 14Z"></path></svg>
+                Admin Control Panel
+            </h1>
+            <div class="admin-header-actions">
+                <button id="admin-refresh-btn" class="admin-btn" title="Refresh Data">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M18.5374 19.5674L19.9516 20.9816C21.9015 19.0317 22.9999 16.3888 22.9999 13.5C22.9999 7.14873 17.8511 2 11.4999 2C5.1486 2 0 7.14873 0 13.5C0 19.8512 5.1486 25 11.4999 25C14.3887 25 17.0316 23.9016 18.9815 21.9517L17.5673 20.5375C16.0316 21.9013 13.8887 22.8001 11.4999 22.8001C6.34861 22.8001 2.19992 18.6514 2.19992 13.5C2.19992 8.34873 6.34861 4.2 11.4999 4.2C16.6512 4.2 20.7999 8.34873 20.7999 13.5C20.7999 15.8888 19.9012 18.0317 18.5374 19.5674V19.5674ZM17.9999 12.5H11.9999V6.5H13.9999V10.5H17.9999V12.5Z"></path></svg>
+                    Refresh
+                </button>
+                <button id="admin-logout-btn" class="admin-btn" title="Logout">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M5 2H19C19.5523 2 20 2.44772 20 3V21C20 21.5523 19.5523 22 19 22H5C4.44772 22 4 21.5523 4 21V3C4 2.44772 4.44772 2 5 2ZM17 16V18H6V6H17V8L19 8V6C19 5.44772 18.5523 5 18 5H6C5.44772 5 5 5.44772 5 6V18C5 18.5523 5.44772 19 6 19H18C18.5523 19 19 18.5523 19 18V16H17ZM13.0858 13L10.2573 10.1716L11.6716 8.75736L16.9242 14.01L11.6716 19.2626L10.2573 17.8484L13.0858 15H9V13H13.0858Z"></path></svg>
+                    Logout
+                </button>
+            </div>
+        </header>
+        <main class="admin-main">
+            <div class="admin-tabs">
+                <button class="admin-tab-btn active" data-tab="users">Users</button>
+                <button class="admin-tab-btn" data-tab="plans">Plans</button>
+                <button class="admin-tab-btn" data-tab="config">Configuration</button>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="admin-tab-users" class="admin-tab-content active">
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <h3>Total Users</h3>
+                        <div id="stats-total-users" class="stat-number">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Active Users</h3>
+                        <div id="stats-active-users" class="stat-number">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Banned Users</h3>
+                        <div id="stats-banned-users" class="stat-number">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Plan Distribution</h3>
+                        <div id="stats-plan-dist" class="plan-distribution"></div>
+                    </div>
+                </div>
+                <div class="admin-section-header">
+                    <h2>User Management</h2>
+                    <div class="search-container">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path></svg>
+                        <input type="text" id="user-search-input" placeholder="Search by name or email...">
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Plan</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-table-body">
+                            <!-- User rows will be injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Plans Tab -->
+            <div id="admin-tab-plans" class="admin-tab-content">
+                <div class="admin-section-header">
+                    <h2>Plan Management</h2>
+                </div>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Plan Name</th>
+                                <th>Price (INR)</th>
+                                <th>Discount (INR)</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="plans-table-body">
+                            <!-- Plans rows injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Configuration Tab -->
+            <div id="admin-tab-config" class="admin-tab-content">
+                <div class="config-card">
+                    <h2>Announcement Bar</h2>
+                    <div class="config-group">
+                        <label for="admin-announcement-text">Message</label>
+                        <input type="text" id="admin-announcement-text" placeholder="Enter announcement text...">
+                    </div>
+                     <div class="config-group">
+                        <label for="admin-announcement-status">Status</label>
+                        <select id="admin-announcement-status">
+                            <option value="active">Active (Visible)</option>
+                            <option value="inactive">Inactive (Hidden)</option>
+                        </select>
+                    </div>
+                    <button class="save-btn" id="save-announcement-btn">Save Announcement</button>
+                </div>
+
+                <div class="config-card">
+                    <h2>Manage Coupons</h2>
+                    <div class="config-group">
+                        <label>Create New Coupon</label>
+                        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <input type="text" id="new-coupon-code" placeholder="Code (e.g., SAVE20)">
+                            <select id="new-coupon-type" style="width: 150px;">
+                                <option value="percent">Discount %</option>
+                                <option value="plan_muft">Muft Plan</option>
+                                <option value="plan_prarambh">Free Prarambh Plan</option>
+                                <option value="plan_tiranga">Free Tiranga Plan</option>
+                            </select>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                             <input type="number" id="new-coupon-value" placeholder="Value (e.g. 20 for 20%)" style="flex: 1;">
+                             <button class="save-btn" id="add-coupon-btn">Add Coupon</button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Type</th>
+                                    <th>Value</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="coupons-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- User Edit Modal -->
+    <div id="edit-user-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Edit User: <span id="modal-user-name"></span></h3>
+            <div class="auth-form">
+                <div class="input-group">
+                    <label for="modal-user-email">Email</label>
+                    <input type="text" id="modal-user-email" readonly>
+                </div>
+                <div class="input-group">
+                    <label for="modal-user-plan">Plan</label>
+                    <select id="modal-user-plan">
+                        <option value="Muft Plan">Muft Plan</option>
+                        <option value="Prarambh Plan">Prarambh Plan</option>
+                        <option value="Tiranga Plan">Tiranga Plan</option>
+                        <option value="Bharat Plan">Bharat Plan</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="modal-user-password">New Password</label>
+                    <input type="password" id="modal-user-password" placeholder="Leave blank to keep current password" autocomplete="new-password">
+                </div>
+                <div class="input-group">
+                    <label for="modal-user-plan-expiry">Plan Duration</label>
+                    <select id="modal-user-plan-expiry">
+                        <option value="forever">Forever</option>
+                        <option value="30">Monthly (30 Days)</option>
+                        <option value="90">Quarterly (90 Days)</option>
+                        <option value="365">Yearly (365 Days)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button id="modal-cancel-btn" class="cancel-btn">Cancel</button>
+                <button id="modal-save-btn" class="save-btn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Plan Modal -->
+    <div id="edit-plan-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Edit Plan: <span id="modal-plan-name-display"></span></h3>
+            <div class="auth-form">
+                <div class="input-group">
+                    <label for="modal-plan-name">Plan Name</label>
+                    <input type="text" id="modal-plan-name">
+                </div>
+                <div class="input-group">
+                    <label for="modal-plan-price">Price (INR)</label>
+                    <input type="number" id="modal-plan-price">
+                </div>
+                <div class="input-group">
+                    <label for="modal-plan-discount">Discounted Amt (INR)</label>
+                    <input type="number" id="modal-plan-discount" placeholder="0 for no discount">
+                </div>
+                <div class="input-group">
+                    <label for="modal-plan-desc">Description</label>
+                    <input type="text" id="modal-plan-desc">
+                </div>
+                <div class="input-group">
+                    <label for="modal-plan-features">Features (One per line)</label>
+                    <textarea id="modal-plan-features"></textarea>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button id="plan-cancel-btn" class="cancel-btn">Cancel</button>
+                <button id="plan-save-btn" class="save-btn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PREMIUM TOAST & MODAL OVERRIDES -->
+    <div id="premium-toast-container"></div>
+    
+    <div id="premium-confirm-modal" class="premium-modal-overlay">
+        <div class="premium-modal-content">
+            <h3 id="premium-confirm-title">Confirm</h3>
+            <p id="premium-confirm-message"></p>
+            <div class="premium-modal-actions">
+                <button id="premium-confirm-cancel" class="premium-btn secondary">Cancel</button>
+                <button id="premium-confirm-ok" class="premium-btn primary">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="premium-prompt-modal" class="premium-modal-overlay">
+        <div class="premium-modal-content">
+            <h3 id="premium-prompt-title">Entering Info</h3>
+            <p id="premium-prompt-message"></p>
+            <input type="text" id="premium-prompt-input" class="premium-input" />
+            <div class="premium-modal-actions">
+                <button id="premium-prompt-cancel" class="premium-btn secondary">Cancel</button>
+                <button id="premium-prompt-ok" class="premium-btn primary">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load JavaScript -->
+    <script src="js/admin.js"></script>
+</body>
+</html>

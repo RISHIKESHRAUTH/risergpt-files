@@ -3,15 +3,15 @@ const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET || 'risergpt-superkey-hdbf53ydshfsd';
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'risergpt-refresh-superkey-jsd83';
 
-function generateTokens(user) {
+function generateTokens(user, mfaVerified = false, sessionId = null) {
     const accessToken = jwt.sign(
-        { email: user.email, role: 'user', uid: user.uid },
+        { email: user.email, role: user.role || 'user', uid: user.uid, mfaVerified, sessionId },
         JWT_SECRET,
-        { expiresIn: '15m' }
+        { expiresIn: '1h' }
     );
 
     const refreshToken = jwt.sign(
-        { email: user.email, role: 'user', uid: user.uid },
+        { email: user.email, role: user.role || 'user', uid: user.uid, mfaVerified, sessionId },
         JWT_REFRESH_SECRET,
         { expiresIn: '7d' }
     );
